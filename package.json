@@ -4,9 +4,8 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "watch": "npm run watch:js & npm run watch:compress:js & npm run watch:less",
+    "watch": "npm run watch:js & npm run watch:less",
     "watch:js": "webpack --watch",
-    "watch:compress:js": "webpack --watch -p",
     "watch:less": "watch-less -d styles -r dist -e .css",
     "build": "npm run build:js & npm run build:less",
     "build:js": "webpack -p -v",
@@ -30,6 +29,7 @@
     "classnames": "^2.2.1",
     "keycode": "^2.1.0",
     "lodash": "^3.10.1",
-    "react-dom": "^0.14.3"
+    "react-dom": "^0.14.3",
+    "web-midi-api": "^1.4.4"
   }
 }

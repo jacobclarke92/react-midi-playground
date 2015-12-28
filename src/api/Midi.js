@@ -20,7 +20,7 @@ export function requestAccess(successCallback = () => {}, failureCallback = () =
 					successCallback(midiAccessObject);
 				}, 
 				error => {
-					onMIDIFailure(e);
+					onMIDIFailure(error);
 					failureCallback(error);
 				}
 			);
@@ -82,7 +82,7 @@ function onMIDISuccess(_midiAccess) {
 
 function onMIDIFailure(error) {
 	// when we get a failed response, run this code
-	console.warn('No access to MIDI devices or your browser doesn\'t support WebMIDI API. ' + error);
+	console.warn(error.message);
 }
 
 function onStateChange(event) {

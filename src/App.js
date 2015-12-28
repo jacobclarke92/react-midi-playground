@@ -20,14 +20,25 @@ export default class App extends Component {
 			activeDevices: [],
 			devicesReceivingData: [],
 			lastMidiMessage: null,
+			errorMessage: null,
 		};
 	}
 
 	componentWillMount() {
-		Midi.requestAccess(midiAccessObject => {
-			Midi.addStateListener(this.handleMidiStateChange);
-			this.updateDevices();
-		});
+		Midi.requestAccess(
+			midiAccessObject => {
+				Midi.addStateListener(this.handleMidiStateChange);
+				this.updateDevices();
+			},
+			error => {
+				this.setState({errorMessage: (
+					<p>
+						MIDI is not supported natively on your browser. 
+						<a href="http://jazz-soft.net/download/Jazz-Plugin/">Download plugin</a>
+					</p>
+				)})
+			}
+		);
 		document.addEventListener('keydown', this.handleKeyDown);
 		document.addEventListener('keyup', this.handleKeyUp);
 	}
@@ -109,7 +120,7 @@ export default class App extends Component {
 	}
 
 	render() {
-		const { devices, activeDevices, devicesReceivingData, lastMidiMessage } = this.state;
+		const { devices, activeDevices, devicesReceivingData, lastMidiMessage, errorMessage } = this.state;
 
 		return (
 			<div>
@@ -120,7 +131,7 @@ export default class App extends Component {
 				<fieldset className="devices">
 					<legend>Current MIDI input devices:</legend>
 					<ul>
-						{devices.map((device,i) =>
+						{errorMessage ? errorMessage : devices.map((device,i) =>
 							<li key={i} className={_.contains(activeDevices, device) && 'active'} onClick={event => this.handleDeviceClick(device)}>
 								{(_.contains(devicesReceivingData, device) ? '◉ ' : '◎ ') + device.name}
 							</li>

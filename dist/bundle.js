@@ -20660,6 +20660,7 @@
 	exports.requestAccess = requestAccess;
 	exports.getAccessObject = getAccessObject;
 	exports.getMidiInputDevices = getMidiInputDevices;
+	exports.getMidiOutputDevices = getMidiOutputDevices;
 	var midiAccess = null;
 
 	function isAvailable() {
@@ -20700,6 +20701,17 @@
 		var inputs = midiAccess.inputs.values();
 		for (var input = inputs.next(); input && !input.done; input = inputs.next()) {
 			devices.push(input.value);
+		}
+		return devices;
+	}
+
+	function getMidiOutputDevices() {
+		if (!midiAccess) return nope();
+
+		var devices = [];
+		var outputs = midiAccess.outputs.values();
+		for (var output = outputs.next(); output && !output.done; output = outputs.next()) {
+			devices.push(output.value);
 		}
 		return devices;
 	}

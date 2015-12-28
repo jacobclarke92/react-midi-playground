@@ -42,6 +42,17 @@ export function getMidiInputDevices() {
 	return devices;
 }
 
+export function getMidiOutputDevices() {
+	if(!midiAccess) return nope();
+
+	const devices = [];
+	const outputs = midiAccess.outputs.values();
+	for(let output = outputs.next(); output && !output.done; output = outputs.next()) {
+		devices.push(output.value);
+	}
+	return devices;
+}
+
 function nope() {
 	console.warn('No midi access at present');
 	return false;

@@ -17,9 +17,11 @@ export default class App extends Component {
 		};
 	}
 
-
 	componentWillMount() {
-		Midi.requestAccess(this.handleMidiAccess);
+		Midi.requestAccess(midiAccessObject => {
+			Midi.addStateListener(this.handleMidiStateChange);
+			this.updateDevices();
+		});
 		document.addEventListener('keydown', this.handleKeyDown);
 		document.addEventListener('keyup', this.handleKeyUp);
 	}
@@ -46,13 +48,8 @@ export default class App extends Component {
 	}
 
 	@autobind
-	handleMidiAccess(midiAccessObject) {
-
-		this.updateDevices();
-
-		midiAccessObject.onstatechange = event => {
-			if(event.constructor.name == 'MIDIConnectionEvent') this.updateDevices();
-		}
+	handleMidiStateChange(event) {
+		if(event.constructor.name == 'MIDIConnectionEvent') this.updateDevices();
 	}
 
 	@autobind
@@ -65,24 +62,23 @@ export default class App extends Component {
 
 	@autobind
 	handleDeviceClick(device) {
-		const { activeDevices } = this.state;
-		let newActiveDevices = activeDevices;
+		let { activeDevices } = this.state;
 		const isActive = _.contains(activeDevices, device);
 		if(this.ctrlKeyPressed) {
-			newActiveDevices = !isActive ? [...activeDevices, device] : activeDevices.filter(activeDevice => !_.isEqual(activeDevice, device));
+			activeDevices = !isActive ? [...activeDevices, device] : activeDevices.filter(activeDevice => !_.isEqual(activeDevice, device));
 		}else{
-			newActiveDevices = [device];
+			activeDevices = [device];
 		}
 
-		this.setState({activeDevices: newActiveDevices});
+		this.setState({activeDevices});
 	}
 
 	render() {
 		const { devices, activeDevices } = this.state;
 		return (
 			<div>
-				<h1>HI</h1>
-				Current MIDI input devices:
+				<h1>React MIDI Interface</h1>
+				<p>Current MIDI input devices:</p>
 				<ul className="devices">
 					{devices.map((device,i) =>
 						<li key={i} className={_.contains(activeDevices, device) && 'active'} onClick={event => this.handleDeviceClick(device)}>{device.name}</li>

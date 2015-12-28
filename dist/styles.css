@@ -1,9 +1,31 @@
-html,
-body {
+html {
   margin: 0;
   padding: 0;
+}
+body {
   font-family: Helvetica, Arial, sans-serif;
+  margin: 0 15px;
+}
+ul.devices {
+  display: inline-block;
+  padding: 15px;
+  border: 1px solid #CCD1D9;
+}
+ul.devices li {
+  list-style: none;
+  cursor: pointer;
+  padding: 5px;
+}
+ul.devices li:hover {
+  background-color: rgba(5, 190, 213, 0.05);
 }
 ul.devices li.active {
   background-color: #05BED5;
+  color: #FFFFFF;
+}
+.status-bar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  background-color: rgba(5, 190, 213, 0.05);
 }

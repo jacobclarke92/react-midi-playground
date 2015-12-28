@@ -1,4 +1,8 @@
+import _ from 'lodash'
+
 let midiAccess = null;
+let stateListeners = [];
+let deviceListeners = [];
 
 export function isAvailable() {
 	return (navigator.requestMIDIAccess) ? true : false;
@@ -53,6 +57,18 @@ export function getMidiOutputDevices() {
 	return devices;
 }
 
+export function addStateListener(callback) {
+	if(!_.contains(stateListeners, callback)) {
+		stateListeners.push(callback);
+	}
+}
+
+export function removeStateListener(callback) {
+	if(_.contains(stateListeners, callback)) {
+		stateListeners = stateListeners.filter(stateListener => !_.isEqual(stateListener, listener));
+	}
+}
+
 function nope() {
 	console.warn('No midi access at present');
 	return false;
@@ -70,6 +86,9 @@ function onMIDIFailure(error) {
 }
 
 function onStateChange(event) {
+	for(let listener of stateListeners) {
+		listener(event);
+	}
 	if(event.constructor.name == 'MIDIConnectionEvent') {
 		const port = event.port;
 		const status = port.state == 'connected' ? '🔵' : '🔴';

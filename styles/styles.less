@@ -1,13 +1,54 @@
-html, body {
+@primary: #05BED5;
+@secondary: #8D48AB;
+@tertiary: #B2347E;
+@light: #E3E7EC;
+@dark: #434A54;
+
+@white: #FFFFFF;
+@black: #000000;
+@light-grey: #CCD1D9;
+@grey: #656D78;
+@dark-grey: #434A54;
+
+@info: #149CFD;
+@error: #E01A2E;
+@warning: #FFC200;
+@success: #05BE55;
+
+@gutter: 15px;
+
+
+html {
 	margin: 0;
 	padding: 0;
+}
+
+body {
 	font-family: Helvetica, Arial, sans-serif;
+	margin: 0 @gutter;
 }
 
 ul.devices {
+	display: inline-block;
+	padding: @gutter;
+	border: 1px solid @light-grey;
 	li {
+		list-style: none;
+		cursor: pointer;
+		padding: 5px;
+		&:hover {
+			background-color: fade(@primary, 5%);
+		}
 		&.active {
-			background-color: #05BED5;
+			background-color: @primary;
+			color: @white;
 		}
 	}
+}
+
+.status-bar {
+	position: fixed;
+	top: 0;
+	right: 0;
+	background-color: fade(@primary, 5%);
 }

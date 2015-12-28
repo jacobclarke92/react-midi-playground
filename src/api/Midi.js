@@ -2,7 +2,7 @@ import _ from 'lodash'
 
 let midiAccess = null;
 let stateListeners = [];
-let deviceListeners = [];
+let deviceListeners = {};
 
 export function isAvailable() {
 	return (navigator.requestMIDIAccess) ? true : false;
@@ -16,11 +16,11 @@ export function requestAccess(successCallback = () => {}, failureCallback = () =
 		if(isAvailable()) {
 			return navigator.requestMIDIAccess({sysex: false}).then(
 				midiAccessObject => {
-					onMIDISuccess(midiAccessObject);
+					onMidiSuccess(midiAccessObject);
 					successCallback(midiAccessObject);
 				}, 
 				error => {
-					onMIDIFailure(error);
+					onMidiFailure(error);
 					failureCallback(error);
 				}
 			);
@@ -41,7 +41,9 @@ export function getMidiInputDevices() {
 	const devices = [];
 	const inputs = midiAccess.inputs.values();
 	for(let input = inputs.next(); input && !input.done; input = inputs.next()) {
-		devices.push(input.value);
+		const device = input.value;
+		devices.push(device);
+		device.onmidimessage = event => onMidiMessage(device, event.data);
 	}
 	return devices;
 }
@@ -69,18 +71,30 @@ export function removeStateListener(callback) {
 	}
 }
 
+export function addDeviceListener(device, callback) {
+	if(!_.contains(Object.keys(deviceListeners), device.id)) {
+		deviceListeners[device.id] = callback;
+	}
+}
+
+export function removeDeviceListener(device, callback) {
+	if(_.contains(Object.keys(deviceListeners), device.id)) {
+		deviceListeners[device.id] = undefined;
+	}
+}
+
 function nope() {
 	console.warn('No midi access at present');
 	return false;
 }
 
-function onMIDISuccess(_midiAccess) {
+function onMidiSuccess(_midiAccess) {
 	midiAccess = _midiAccess;
 	console.log('MIDI Access Granted!', _midiAccess);
 	_midiAccess.onstatechange = onStateChange;
 }
 
-function onMIDIFailure(error) {
+function onMidiFailure(error) {
 	// when we get a failed response, run this code
 	console.warn(error.message);
 }
@@ -94,4 +108,13 @@ function onStateChange(event) {
 		const status = port.state == 'connected' ? '🔵' : '🔴';
 		console.log(status+' '+port.type+' '+port.state+': '+port.name);
 	}		
+}
+
+function onMidiMessage(device, message) {
+	Object.keys(deviceListeners).map(key => {
+		if(device.id === key) {
+			const midiObject = message;//getMidiMessageObject(message);
+			deviceListeners[key](midiObject);
+		}
+	});
 }

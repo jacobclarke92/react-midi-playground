@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import autobind from 'autobind-decorator'
-import keyCode from 'keycode'
+import keycode from 'keycode'
 import _ from 'lodash'
 
 import * as Midi from 'api/Midi'
@@ -50,14 +50,14 @@ export default class App extends Component {
 
 	@autobind
 	handleKeyDown(e) {
-		switch(keyCode(e)) {
+		switch(keycode(e)) {
 			case 'command': this.ctrlKeyPressed = true; break;
 		}
 	}
 
 	@autobind
 	handleKeyUp(e) {
-		switch(keyCode(e)) {
+		switch(keycode(e)) {
 			case 'command': this.ctrlKeyPressed = false; break;
 		}
 	}
@@ -67,6 +67,7 @@ export default class App extends Component {
 		if(event.constructor.name == 'MIDIConnectionEvent') this.updateDevices();
 	}
 
+	// used to show midi status next to device name
 	@autobind
 	handleMidiMessage(device, message) {
 		let { devicesReceivingData } = this.state;
@@ -82,6 +83,7 @@ export default class App extends Component {
 		}, 50);
 	}
 
+	// called after midi state change, usually implies device connected/disconnected
 	@autobind
 	updateDevices() {
 		const devices = Midi.getMidiInputDevices();
@@ -90,10 +92,11 @@ export default class App extends Component {
 		this.setState({devices});
 		
 		for(let device of devices) {
-			device.onmidimessage = event => this.handleMidiMessage(device, event.data);
+			Midi.addDeviceListener(device, message => this.handleMidiMessage(device, message));
 		}
 	}
 
+	// called by device onClock
 	@autobind
 	handleDeviceClick(device) {
 		let { activeDevices } = this.state;
@@ -107,6 +110,7 @@ export default class App extends Component {
 		this.setState({activeDevices});
 	}
 
+	// easier than doing the logic in render
 	getLastMessageString() {
 		const { lastMidiMessage } = this.state;
 		if(!lastMidiMessage) return null;

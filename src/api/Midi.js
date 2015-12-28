@@ -61,9 +61,18 @@ function nope() {
 function onMIDISuccess(_midiAccess) {
 	midiAccess = _midiAccess;
 	console.log('MIDI Access Granted!', _midiAccess);
+	_midiAccess.onstatechange = onStateChange;
 }
 
 function onMIDIFailure(error) {
 	// when we get a failed response, run this code
 	console.warn('No access to MIDI devices or your browser doesn\'t support WebMIDI API. ' + error);
+}
+
+function onStateChange(event) {
+	if(event.constructor.name == 'MIDIConnectionEvent') {
+		const port = event.port;
+		const status = port.state == 'connected' ? '🔵' : '🔴';
+		console.log(status+' '+port.type+' '+port.state+': '+port.name);
+	}		
 }

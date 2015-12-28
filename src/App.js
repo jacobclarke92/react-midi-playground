@@ -99,8 +99,13 @@ export default class App extends Component {
 	getLastMessageString() {
 		const { lastMidiMessage } = this.state;
 		if(!lastMidiMessage) return null;
-		const midiObject = getMidiMessageObject(lastMidiMessage);
-		return getCommandString(midiObject.command) + ', channel: ' + midiObject.channel + ', note: ' + midiObject.note + (midiObject.velocity ? ', velocity: ' + midiObject.velocity : '');
+		const data = getMidiMessageObject(lastMidiMessage);
+		return (
+			<span>
+				{getCommandString(data.command)} <b>{data.note}</b> 
+				&nbsp;({data.velocity ? 'velocity: '+data.velocity+', ' : ''}channel: {data.channel}, key: {data.key})
+			</span>
+		);
 	}
 
 	render() {

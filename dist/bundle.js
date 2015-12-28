@@ -19655,10 +19655,16 @@
 
 	'use strict';
 
+	var _desc, _value, _class;
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 	exports.default = undefined;
+
+	var _getOwnPropertyDescriptor = __webpack_require__(210);
+
+	var _getOwnPropertyDescriptor2 = _interopRequireDefault(_getOwnPropertyDescriptor);
 
 	var _getPrototypeOf = __webpack_require__(160);
 
@@ -19684,9 +19690,48 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _autobindDecorator = __webpack_require__(213);
+
+	var _autobindDecorator2 = _interopRequireDefault(_autobindDecorator);
+
+	var _Midi = __webpack_require__(209);
+
+	var Midi = _interopRequireWildcard(_Midi);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var App = (function (_Component) {
+	function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+		var desc = {};
+		Object['ke' + 'ys'](descriptor).forEach(function (key) {
+			desc[key] = descriptor[key];
+		});
+		desc.enumerable = !!desc.enumerable;
+		desc.configurable = !!desc.configurable;
+
+		if ('value' in desc || desc.initializer) {
+			desc.writable = true;
+		}
+
+		desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+			return decorator(target, property, desc) || desc;
+		}, desc);
+
+		if (context && desc.initializer !== void 0) {
+			desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+			desc.initializer = undefined;
+		}
+
+		if (desc.initializer === void 0) {
+			Object['define' + 'Property'](target, property, desc);
+			desc = null;
+		}
+
+		return desc;
+	}
+
+	var App = (_class = (function (_Component) {
 		(0, _inherits3.default)(App, _Component);
 
 		function App() {
@@ -19695,6 +19740,29 @@
 		}
 
 		(0, _createClass3.default)(App, [{
+			key: 'handleMidiAccess',
+			value: function handleMidiAccess(midiAccessObject) {
+
+				var devices = Midi.getMidiInputDevices();
+				var deviceNames = devices.map(function (device) {
+					return device.name;
+				});
+				console.log(deviceNames);
+				midiAccessObject.onstatechange = function (event) {
+					var eventType = event.constructor.name;
+					if (eventType == 'MIDIConnectionEvent') {
+						var port = event.port;
+						var status = port.state == 'connected' ? '🔵' : '🔴';
+						console.log(status + ' ' + port.type + ' ' + port.state + ': ' + port.name);
+					}
+				};
+			}
+		}, {
+			key: 'componentDidMount',
+			value: function componentDidMount() {
+				Midi.requestAccess(this.handleMidiAccess);
+			}
+		}, {
 			key: 'render',
 			value: function render() {
 				return _react2.default.createElement(
@@ -19705,8 +19773,7 @@
 			}
 		}]);
 		return App;
-	})(_react.Component);
-
+	})(_react.Component), (_applyDecoratedDescriptor(_class.prototype, 'handleMidiAccess', [_autobindDecorator2.default], (0, _getOwnPropertyDescriptor2.default)(_class.prototype, 'handleMidiAccess'), _class.prototype)), _class);
 	exports.default = App;
 
 /***/ },
@@ -20579,6 +20646,209 @@
 	module.exports = function create(P, D){
 	  return $.create(P, D);
 	};
+
+/***/ },
+/* 209 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	exports.isAvailable = isAvailable;
+	exports.requestAccess = requestAccess;
+	exports.getAccessObject = getAccessObject;
+	exports.getMidiInputDevices = getMidiInputDevices;
+	var midiAccess = null;
+
+	function isAvailable() {
+		return navigator.requestMIDIAccess ? true : false;
+	}
+
+	function requestAccess() {
+		var successCallback = arguments.length <= 0 || arguments[0] === undefined ? function () {} : arguments[0];
+		var failureCallback = arguments.length <= 1 || arguments[1] === undefined ? function () {} : arguments[1];
+
+		if (midiAccess !== null) {
+			return midiAccess;
+		} else {
+			console.log('Requesting MIDI Access');
+			if (isAvailable()) {
+				return navigator.requestMIDIAccess({ sysex: false }).then(function (midiAccessObject) {
+					onMIDISuccess(midiAccessObject);
+					successCallback(midiAccessObject);
+				}, function (error) {
+					onMIDIFailure(e);
+					failureCallback(error);
+				});
+			} else {
+				console.warn('No MIDI support in your browser - just Chrome as of now');
+				return false;
+			}
+		}
+	}
+
+	function getAccessObject() {
+		return midiAccess;
+	}
+
+	function getMidiInputDevices() {
+		if (!midiAccess) return nope();
+
+		var devices = [];
+		var inputs = midiAccess.inputs.values();
+		for (var input = inputs.next(); input && !input.done; input = inputs.next()) {
+			devices.push(input.value);
+		}
+		return devices;
+	}
+
+	function nope() {
+		console.warn('No midi access at present');
+		return false;
+	}
+
+	function onMIDISuccess(_midiAccess) {
+		midiAccess = _midiAccess;
+		console.log('MIDI Access Granted!', _midiAccess);
+	}
+
+	function onMIDIFailure(error) {
+		// when we get a failed response, run this code
+		console.warn('No access to MIDI devices or your browser doesn\'t support WebMIDI API. ' + error);
+	}
+
+/***/ },
+/* 210 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = { "default": __webpack_require__(211), __esModule: true };
+
+/***/ },
+/* 211 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var $ = __webpack_require__(176);
+	__webpack_require__(212);
+	module.exports = function getOwnPropertyDescriptor(it, key){
+	  return $.getDesc(it, key);
+	};
+
+/***/ },
+/* 212 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// 19.1.2.6 Object.getOwnPropertyDescriptor(O, P)
+	var toIObject = __webpack_require__(192);
+
+	__webpack_require__(165)('getOwnPropertyDescriptor', function($getOwnPropertyDescriptor){
+	  return function getOwnPropertyDescriptor(it, key){
+	    return $getOwnPropertyDescriptor(toIObject(it), key);
+	  };
+	});
+
+/***/ },
+/* 213 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+	/**
+	 * @copyright 2015, Andrey Popp <8mayday@gmail.com>
+	 *
+	 * The decorator may be used on classes or methods
+	 * ```
+	 * @autobind
+	 * class FullBound {}
+	 *
+	 * class PartBound {
+	 *   @autobind
+	 *   method () {}
+	 * }
+	 * ```
+	 */
+	exports['default'] = autobind;
+
+	function autobind() {
+	  for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	    args[_key] = arguments[_key];
+	  }
+
+	  if (args.length === 1) {
+	    return boundClass.apply(undefined, args);
+	  } else {
+	    return boundMethod.apply(undefined, args);
+	  }
+	}
+
+	/**
+	 * Use boundMethod to bind all methods on the target.prototype
+	 */
+	function boundClass(target) {
+	  // (Using reflect to get all keys including symbols)
+	  var keys = undefined;
+	  // Use Reflect if exists
+	  if (typeof Reflect !== 'undefined') {
+	    keys = Reflect.ownKeys(target.prototype);
+	  } else {
+	    keys = Object.getOwnPropertyNames(target.prototype);
+	    // use symbols if support is provided
+	    if (typeof Object.getOwnPropertySymbols === 'function') {
+	      keys = keys.concat(Object.getOwnPropertySymbols(target.prototype));
+	    }
+	  }
+
+	  keys.forEach(function (key) {
+	    // Ignore special case target method
+	    if (key === 'constructor') {
+	      return;
+	    }
+
+	    var descriptor = Object.getOwnPropertyDescriptor(target.prototype, key);
+
+	    // Only methods need binding
+	    if (typeof descriptor.value === 'function') {
+	      Object.defineProperty(target.prototype, key, boundMethod(target, key, descriptor));
+	    }
+	  });
+	  return target;
+	}
+
+	/**
+	 * Return a descriptor removing the value and returning a getter
+	 * The getter will return a .bind version of the function
+	 * and memoize the result against a symbol on the instance
+	 */
+	function boundMethod(target, key, descriptor) {
+	  var fn = descriptor.value;
+
+	  if (typeof fn !== 'function') {
+	    throw new Error('@autobind decorator can only be applied to methods not: ' + typeof fn);
+	  }
+
+	  return {
+	    configurable: true,
+	    get: function get() {
+	      if (this === target.prototype) {
+	        return fn;
+	      }
+
+	      var boundFn = fn.bind(this);
+	      Object.defineProperty(this, key, {
+	        value: boundFn,
+	        configurable: true,
+	        writable: true
+	      });
+	      return boundFn;
+	    }
+	  };
+	}
+	module.exports = exports['default'];
+
 
 /***/ }
 /******/ ]);

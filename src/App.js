@@ -3,6 +3,8 @@ import autobind from 'autobind-decorator'
 import keycode from 'keycode'
 import _ from 'lodash'
 
+import Slider from 'rc-slider'
+
 import * as Midi from 'api/Midi'
 import { getMidiMessageObject, getCommandString } from 'util/midiUtils'
 
@@ -21,6 +23,7 @@ export default class App extends Component {
 			devicesReceivingData: [],
 			lastMidiMessage: null,
 			errorMessage: null,
+			sliderValue: 0,
 		};
 	}
 
@@ -71,7 +74,9 @@ export default class App extends Component {
 	@autobind
 	handleMidiMessage(device, message) {
 		let { devicesReceivingData } = this.state;
-		this.setState({lastMidiMessage: message});
+		const messageObject = getMidiMessageObject(message);
+		if(messageObject.command === 11) this.setState({sliderValue: messageObject.velocity});
+		this.setState({lastMidiMessage: messageObject});
 		if(!_.contains(devicesReceivingData, device)) {
 			devicesReceivingData = [...devicesReceivingData, device];
 			this.setState({devicesReceivingData});
@@ -114,11 +119,10 @@ export default class App extends Component {
 	getLastMessageString() {
 		const { lastMidiMessage } = this.state;
 		if(!lastMidiMessage) return null;
-		const data = getMidiMessageObject(lastMidiMessage);
 		return (
 			<span>
-				{getCommandString(data.command)} <b>{data.note}</b> 
-				&nbsp;({data.velocity ? 'velocity: '+data.velocity+', ' : ''}channel: {data.channel}, key: {data.key})
+				{getCommandString(lastMidiMessage.command)} <b>{lastMidiMessage.note}</b> 
+				&nbsp;({lastMidiMessage.velocity ? 'velocity: '+lastMidiMessage.velocity+', ' : ''}channel: {lastMidiMessage.channel}, key: {lastMidiMessage.key})
 			</span>
 		);
 	}
@@ -143,6 +147,12 @@ export default class App extends Component {
 					</ul>
 					<p><b>Last MIDI message: </b>{this.getLastMessageString()}</p>
 				</fieldset>
+				<br />
+				<fieldset>
+					<legend>Some slider</legend>
+					<Slider max={127} value={this.state.sliderValue} onChange={sliderValue => this.setState({sliderValue})} />
+				</fieldset>
+
 			</div>
 		);
 	}

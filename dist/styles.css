@@ -6,26 +6,27 @@ body {
   font-family: Helvetica, Arial, sans-serif;
   margin: 0 15px;
 }
-ul.devices {
-  display: inline-block;
-  padding: 15px;
-  border: 1px solid #CCD1D9;
-}
-ul.devices li {
-  list-style: none;
-  cursor: pointer;
-  padding: 5px;
-}
-ul.devices li:hover {
-  background-color: rgba(5, 190, 213, 0.05);
-}
-ul.devices li.active {
-  background-color: #05BED5;
-  color: #FFFFFF;
-}
-.status-bar {
+.status {
   position: fixed;
   top: 0;
   right: 0;
   background-color: rgba(5, 190, 213, 0.05);
+}
+.devices ul {
+  display: inline-block;
+  padding: 15px;
+  border: 1px solid #CCD1D9;
+}
+.devices ul li {
+  list-style: none;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 100%;
+}
+.devices ul li:hover {
+  background-color: rgba(5, 190, 213, 0.05);
+}
+.devices ul li.active {
+  background-color: #05BED5;
+  color: #FFFFFF;
 }

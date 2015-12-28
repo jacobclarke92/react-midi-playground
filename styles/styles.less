@@ -28,27 +28,30 @@ body {
 	margin: 0 @gutter;
 }
 
-ul.devices {
-	display: inline-block;
-	padding: @gutter;
-	border: 1px solid @light-grey;
-	li {
-		list-style: none;
-		cursor: pointer;
-		padding: 5px;
-		&:hover {
-			background-color: fade(@primary, 5%);
-		}
-		&.active {
-			background-color: @primary;
-			color: @white;
-		}
-	}
-}
-
-.status-bar {
+.status {
 	position: fixed;
 	top: 0;
 	right: 0;
 	background-color: fade(@primary, 5%);
+}
+
+.devices {
+	ul {
+		display: inline-block;
+		padding: @gutter;
+		border: 1px solid @light-grey;
+		li {
+			list-style: none;
+			cursor: pointer;
+			padding: 5px;
+			line-height: 100%;
+			&:hover {
+				background-color: fade(@primary, 5%);
+			}
+			&.active {
+				background-color: @primary;
+				color: @white;
+			}
+		}
+	}
 }

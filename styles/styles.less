@@ -26,6 +26,11 @@ html {
 body {
 	font-family: Helvetica, Arial, sans-serif;
 	margin: 0 @gutter;
+	color: @dark;
+}
+
+legend {
+	padding: 0 @gutter;
 }
 
 .status {
@@ -36,10 +41,11 @@ body {
 }
 
 .devices {
+	padding: @gutter;
+	border: 1px solid @light-grey;
 	ul {
 		display: inline-block;
-		padding: @gutter;
-		border: 1px solid @light-grey;
+		padding-left: 0;
 		li {
 			list-style: none;
 			cursor: pointer;

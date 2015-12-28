@@ -4,6 +4,7 @@ import keyCode from 'keycode'
 import _ from 'lodash'
 
 import * as Midi from 'api/Midi'
+import { getMidiMessageObject, getCommandString } from 'util/midiUtils'
 
 
 export default class App extends Component {
@@ -12,13 +13,13 @@ export default class App extends Component {
 		super(props);
 		this.ctrlKeyPressed = false;
 		this.deviceDataTimeouts = [];
-		this.lastMidiMessage = null;
 
 		this.updateDevices = _.debounce(this.updateDevices, 250);
 		this.state = {
 			devices: [],
 			activeDevices: [],
 			devicesReceivingData: [],
+			lastMidiMessage: null,
 		};
 	}
 
@@ -58,7 +59,7 @@ export default class App extends Component {
 	@autobind
 	handleMidiMessage(device, message) {
 		let { devicesReceivingData } = this.state;
-		this.lastMidiMessage = message;
+		this.setState({lastMidiMessage: message});
 		if(!_.contains(devicesReceivingData, device)) {
 			devicesReceivingData = [...devicesReceivingData, device];
 			this.setState({devicesReceivingData});
@@ -95,16 +96,24 @@ export default class App extends Component {
 		this.setState({activeDevices});
 	}
 
+	getLastMessageString() {
+		const { lastMidiMessage } = this.state;
+		if(!lastMidiMessage) return null;
+		const midiObject = getMidiMessageObject(lastMidiMessage);
+		return getCommandString(midiObject.command) + ', channel: ' + midiObject.channel + ', note: ' + midiObject.note + (midiObject.velocity ? ', velocity: ' + midiObject.velocity : '');
+	}
+
 	render() {
-		const { devices, activeDevices, devicesReceivingData } = this.state;
+		const { devices, activeDevices, devicesReceivingData, lastMidiMessage } = this.state;
+
 		return (
 			<div>
 				<h1>React MIDI Interface</h1>
 				<div className="status">
 
 				</div>
-				<div className="devices">
-					<p>Current MIDI input devices:</p>
+				<fieldset className="devices">
+					<legend>Current MIDI input devices:</legend>
 					<ul>
 						{devices.map((device,i) =>
 							<li key={i} className={_.contains(activeDevices, device) && 'active'} onClick={event => this.handleDeviceClick(device)}>
@@ -112,11 +121,8 @@ export default class App extends Component {
 							</li>
 						)}
 					</ul>
-					<br />
-					<ul>
-						<li>{this.lastMidiMessage && this.lastMidiMessage.join(', ')}</li>
-					</ul>
-				</div>
+					<p><b>Last MIDI message: </b>{this.getLastMessageString()}</p>
+				</fieldset>
 			</div>
 		);
 	}

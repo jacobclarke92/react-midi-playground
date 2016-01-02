@@ -51,8 +51,18 @@ export default function values(state = initialState, action = {}) {
 }
 
 // actions
-export function midiMessageReceived(device, _message) {
+let lastTime = new Date().getTime();
+export function midiMessageReceived(device, _message, store) {
 	const message = getMidiMessageObject(_message);
+	if(new Date().getTime() - lastTime < 1000/60) {
+		const lastMidiMessage = store.getState().lastMidiMessage;
+		if(lastMidiMessage.deviceId && lastMidiMessage.deviceId === device.id && lastMidiMessage.key === message.key) {
+			lastTime = new Date().getTime();
+			return { type: UNKNOWN_COMMAND };	
+		}
+	}
+	lastTime = new Date().getTime();
+	
 	switch (message.command) {
 		case 9: 
 			return { device, message, type: NOTE_ON }

@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { getMidiMessageObject } from 'util/midiUtils'
 
 const MIDI_MESSAGE_RECEIVED = 'MIDI_MESSAGE_RECEIVED'
@@ -16,10 +17,10 @@ export default function lastMidiMessage(state = initialState, action = {}) {
 	}
 }
 
-export function updateLastMidiMessage(device, message) {
+export const updateLastMidiMessage = _.throttle((device, message) => {
 	return {
 		type: MIDI_MESSAGE_RECEIVED,
 		message: getMidiMessageObject(message),
 		device,
 	}
-}
+}, 1000/60);

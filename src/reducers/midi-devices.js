@@ -58,7 +58,7 @@ export function devicesUpdated(devices) {
 
 const deviceActiveTimeouts = [];
 
-export const deviceActive = _.throttle(function(device, store) {
+export const deviceActive = _.throttle((device, store) => {
 	
 	if(deviceActiveTimeouts[device.id]) clearTimeout(deviceActiveTimeouts[device.id]);
 

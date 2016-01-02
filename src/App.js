@@ -11,12 +11,19 @@ import { getMidiMessageObject, getCommandString } from 'util/midiUtils'
 
 export default class App extends Component {
 
+	// extends class constructor to create inititial class vars
 	constructor(props) {
 		super(props);
+
+		// variables that don't need to be stored in state
 		this.ctrlKeyPressed = false;
 		this.deviceDataTimeouts = [];
 
+		// limit events that could stream in faster than render time
 		this.updateDevices = _.debounce(this.updateDevices, 250);
+		this.handleMidiMessage = _.throttle(this.handleMidiMessage, 1000/60);
+
+		// set react state
 		this.state = {
 			devices: [],
 			activeDevices: [],
@@ -27,6 +34,7 @@ export default class App extends Component {
 		};
 	}
 
+	// before first render
 	componentWillMount() {
 		Midi.requestAccess(
 			midiAccessObject => {
@@ -42,10 +50,13 @@ export default class App extends Component {
 				)})
 			}
 		);
+
+		// bind key events
 		document.addEventListener('keydown', this.handleKeyDown);
 		document.addEventListener('keyup', this.handleKeyUp);
 	}
 
+	// unbind key events before component unmounts
 	componentWillUnmount() {
 		document.removeEventListener('keydown', this.handleKeyDown);
 		document.removeEventListener('keyup', this.handleKeyUp);
@@ -53,16 +64,12 @@ export default class App extends Component {
 
 	@autobind
 	handleKeyDown(e) {
-		switch(keycode(e)) {
-			case 'command': this.ctrlKeyPressed = true; break;
-		}
+		if(keycode(e) == 'command') this.ctrlKeyPressed = true; break;
 	}
 
 	@autobind
 	handleKeyUp(e) {
-		switch(keycode(e)) {
-			case 'command': this.ctrlKeyPressed = false; break;
-		}
+		if(keycode(e) == 'command') this.ctrlKeyPressed = false; break;
 	}
 
 	@autobind
@@ -101,7 +108,7 @@ export default class App extends Component {
 		}
 	}
 
-	// called by device onClock
+	// called by device onClick
 	@autobind
 	handleDeviceClick(device) {
 		let { activeDevices } = this.state;
@@ -115,7 +122,7 @@ export default class App extends Component {
 		this.setState({activeDevices});
 	}
 
-	// easier than doing the logic in render
+	// easier than doing the logic in render function
 	getLastMessageString() {
 		const { lastMidiMessage } = this.state;
 		if(!lastMidiMessage) return null;

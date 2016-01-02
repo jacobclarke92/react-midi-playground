@@ -2,6 +2,7 @@ import _ from 'lodash'
 
 let midiAccess = null;
 let stateListeners = [];
+let globalListeners = [];
 let deviceListeners = {};
 
 export function isAvailable() {
@@ -36,9 +37,12 @@ export function getAccessObject() {
 }
 
 export function getMidiInputDevices() {
-	if(!midiAccess) return nope();
-
 	const devices = [];
+	if(!midiAccess) {
+		nope();
+		return devices;
+	}
+
 	const inputs = midiAccess.inputs.values();
 	for(let input = inputs.next(); input && !input.done; input = inputs.next()) {
 		const device = input.value;
@@ -49,9 +53,12 @@ export function getMidiInputDevices() {
 }
 
 export function getMidiOutputDevices() {
-	if(!midiAccess) return nope();
-
 	const devices = [];
+	if(!midiAccess) {
+		nope();
+		return devices;
+	}
+
 	const outputs = midiAccess.outputs.values();
 	for(let output = outputs.next(); output && !output.done; output = outputs.next()) {
 		devices.push(output.value);
@@ -83,6 +90,18 @@ export function removeDeviceListener(device, callback) {
 	}
 }
 
+export function addGlobalMidiListener(callback) {
+	if(!_.contains(globalListeners, callback)) {
+		globalListeners.push(callback);
+	}
+}
+
+export function removeGlobalMidiListener(callback) {
+	if(_.contains(globalListeners, callback)) {
+		globalListeners = globalListeners.filter(globalListener => !_.isEqual(globalListener, listener));
+	}
+}
+
 function nope() {
 	console.warn('No midi access at present');
 	return false;
@@ -90,12 +109,11 @@ function nope() {
 
 function onMidiSuccess(_midiAccess) {
 	midiAccess = _midiAccess;
-	console.log('MIDI Access Granted!', _midiAccess);
+	console.info('✅ MIDI Access Granted!', _midiAccess);
 	_midiAccess.onstatechange = onStateChange;
 }
 
 function onMidiFailure(error) {
-	// when we get a failed response, run this code
 	console.warn(error.message);
 }
 
@@ -111,6 +129,9 @@ function onStateChange(event) {
 }
 
 function onMidiMessage(device, message) {
+	for(let globalListener of globalListeners) {
+		globalListener(device, message);
+	}
 	Object.keys(deviceListeners).map(key => {
 		if(device.id === key) {
 			const midiObject = message;//getMidiMessageObject(message);

@@ -64,12 +64,12 @@ export default class App extends Component {
 
 	@autobind
 	handleKeyDown(e) {
-		if(keycode(e) == 'command') this.ctrlKeyPressed = true; break;
+		if(keycode(e) == 'command') this.ctrlKeyPressed = true;
 	}
 
 	@autobind
 	handleKeyUp(e) {
-		if(keycode(e) == 'command') this.ctrlKeyPressed = false; break;
+		if(keycode(e) == 'command') this.ctrlKeyPressed = false;
 	}
 
 	@autobind
@@ -78,6 +78,7 @@ export default class App extends Component {
 	}
 
 	// used to show midi status next to device name
+	// this event is throttled so it's unreliable as actual data input
 	@autobind
 	handleMidiMessage(device, message) {
 		let { devicesReceivingData } = this.state;

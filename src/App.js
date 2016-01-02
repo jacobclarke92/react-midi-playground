@@ -27,25 +27,17 @@ export default class App extends Component {
 		super(props);
 
 		// variables that don't need to be stored in state
-		this.ctrlKeyPressed = false;
-		this.deviceDataTimeouts = [];
-
-		// limit events that could stream in faster than render time
-		this.updateDevices = _.debounce(this.updateDevices, 250);
-		this.handleMidiMessage = _.throttle(this.handleMidiMessage, 1000/60);
+		this.ctrlKeyPressed = false;;
 
 		// set react state
 		this.state = {
 			activeDevices: [],
-			devicesReceivingData: [],
-			errorMessage: null,
 			sliderValue: 0,
 		};
 	}
 
-	// before first render
+	// bind key events before first render
 	componentWillMount() {
-		// bind key events
 		document.addEventListener('keydown', this.handleKeyDown);
 		document.addEventListener('keyup', this.handleKeyUp);
 	}
@@ -67,43 +59,10 @@ export default class App extends Component {
 	}
 
 	componentWillUpdate(nextProps, nextState) {
-		if(!_.isEqual(this.props.devices, nextProps.devices)) this.updateDevices();
-	}
-
-	////// TO DO: REFACTOR FROM HERE...... //////
-
-	// used to show midi status next to device name
-	// this event is throttled so it's unreliable as actual data input
-	@autobind
-	handleMidiMessage(device, message) {
-		let { devicesReceivingData } = this.state;
-		const messageObject = getMidiMessageObject(message);
-		
-		if(messageObject.command === 11) this.setState({sliderValue: messageObject.velocity});
-		
-		if(!_.contains(devicesReceivingData, device)) {
-			devicesReceivingData = [...devicesReceivingData, device];
-			this.setState({devicesReceivingData});
-		}
-		if(this.deviceDataTimeouts[device.id]) {
-			clearTimeout(this.deviceDataTimeouts[device.id]);
-		}
-		
-		this.deviceDataTimeouts[device.id] = setTimeout(() => {
-			devicesReceivingData = devicesReceivingData.filter(_device => !_.isEqual(_device, device));
-			this.setState({devicesReceivingData})
-		}, 50);
-	}
-
-	// called after midi state change, usually implies device connected/disconnected
-	@autobind
-	updateDevices() {
-		for(let device of this.props.devices) {
-			Midi.addDeviceListener(device, message => this.handleMidiMessage(device, message));
+		if(!_.isEqual(this.props.lastMidiMessage, nextProps.lastMidiMessage) && nextProps.lastMidiMessage.command === 11) {
+			this.setState({sliderValue: nextProps.lastMidiMessage.velocity});
 		}
 	}
-
-	////// ... TO HERE //////
 
 	// called by device onClick
 	@autobind
@@ -154,7 +113,7 @@ export default class App extends Component {
 							</p>
 						) : devices.map((device,i) =>
 							<li key={i} className={_.contains(activeDevices, device) && 'active'} onClick={event => this.handleDeviceClick(device)}>
-								{(_.contains(devicesReceivingData, device) ? '◉ ' : '◎ ') + device.name}
+								{(device.active ? '◉ ' : '◎ ') + device.name}
 							</li>
 						)}
 					</ul>

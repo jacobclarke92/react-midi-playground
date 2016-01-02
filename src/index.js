@@ -7,7 +7,7 @@ import App from 'App'
 import * as Midi from 'api/Midi'
 import reducer from 'reducers'
 import { midiEnabled, midiDisabled } from 'reducers/midi'
-import { deviceConnected, deviceDisconnected, devicesUpdated } from 'reducers/midi-devices'
+import { deviceConnected, deviceDisconnected, devicesUpdated, deviceActive } from 'reducers/midi-devices'
 import { midiMessageReceived } from 'reducers/midi-values'
 import { updateLastMidiMessage } from 'reducers/last-midi-message'
 
@@ -41,7 +41,8 @@ function handleMidiStateChange(event) {
 
 // functioned called on midi message, regardless of device, channel etc.
 function handleMidiMessage(device, message) {
-	store.dispatch(midiMessageReceived(device, message));
+	store.dispatch(deviceActive(device, store));
+	store.dispatch(midiMessageReceived(device, message, store));
 	store.dispatch(updateLastMidiMessage(device, message));
 }
 

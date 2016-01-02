@@ -109,7 +109,7 @@ function nope() {
 
 function onMidiSuccess(_midiAccess) {
 	midiAccess = _midiAccess;
-	console.info('✅ MIDI Access Granted!', _midiAccess);
+	console.log('✅ MIDI Access Granted!', _midiAccess);
 	_midiAccess.onstatechange = onStateChange;
 }
 

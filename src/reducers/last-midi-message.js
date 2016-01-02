@@ -7,7 +7,10 @@ const initialState = {};
 export default function lastMidiMessage(state = initialState, action = {}) {
 	switch (action.type) {
 		case MIDI_MESSAGE_RECEIVED:
-			return action.message;
+			return {
+				...action.message,
+				deviceId: action.device.id,
+			};
 		default:
 			return state;
 	}
@@ -17,5 +20,6 @@ export function updateLastMidiMessage(device, message) {
 	return {
 		type: MIDI_MESSAGE_RECEIVED,
 		message: getMidiMessageObject(message),
+		device,
 	}
 }

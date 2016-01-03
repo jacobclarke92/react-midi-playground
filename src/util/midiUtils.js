@@ -1,4 +1,4 @@
-
+import React from 'react'
 const notes = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
 
 export function getMidiMessageObject(message = []) {
@@ -15,11 +15,11 @@ export function getMidiMessageObject(message = []) {
 
 export function getCommandString(messageObject) {
 	switch(messageObject.command) {
-		case 9: return messageObject.velocity === 0 ? 'Note off' : 'Note on'; break;
-		case 8: return 'Note off'; break;
-		case 11: return 'CC change'; break;
-		case 13: return 'Aftertouch change'; break;
-		case 14: return 'Pitchbend change'; break;
+		case 9: return messageObject.velocity === 0 ? '🔇' : '🔈'; break;
+		case 8: return '🔇'; break;
+		case 11: return (<span><span style={{fontSize: '28px'}}>⫯</span> cc</span>); break;
+		case 13: return (<span><span style={{fontSize: '28px'}}>⫰</span> aftertouch</span>); break;
+		case 14: return (<span><span style={{fontSize: '28px'}}>⫮</span> pitchbend</span>); break;
 		default: return null;
 	}
 }

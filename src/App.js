@@ -7,7 +7,7 @@ import Slider from 'rc-slider'
 
 import * as Midi from 'api/Midi'
 import { getMidiMessageObject, getCommandString } from 'util/midiUtils'
-import { getTotalNotesDownForDevice, getTotalNotesDownForDevices } from 'reducers/midi-values'
+import { resetValues, getTotalNotesDownForDevices } from 'reducers/midi-values'
 import { deviceSelected, deviceDeselected, setSelectedDevices } from 'reducers/selected-midi-devices'
 
 const Url = props => (<a href={props.href} target="_blank">{props.children}</a>);
@@ -55,11 +55,14 @@ export default class App extends Component {
 	}
 
 	// called by device onClick
-	@autobind
 	handleDeviceClick(deviceId) {
 		let { dispatch, selectedDevices } = this.props;
 		const isActive = _.contains(selectedDevices, deviceId);
 		dispatch( isActive ? deviceDeselected(deviceId) : deviceSelected(deviceId) );
+	}
+
+	handleResetDevices() {
+		this.props.dispatch(resetValues());
 	}
 
 	// easier than doing the logic in render function
@@ -69,7 +72,7 @@ export default class App extends Component {
 		return (
 			<span>
 				{getCommandString(lastMidiMessage)} <b>{lastMidiMessage.note}</b> 
-				&nbsp;({lastMidiMessage.velocity ? 'velocity: '+lastMidiMessage.velocity+', ' : ''}channel: {lastMidiMessage.channel}, key: {lastMidiMessage.key})
+				&nbsp;({lastMidiMessage.velocity ? 'velocity: '+lastMidiMessage.velocity+', ' : ''}channel: {lastMidiMessage.channel + 1}, key: {lastMidiMessage.key})
 			</span>
 		);
 	}
@@ -110,8 +113,9 @@ export default class App extends Component {
 						<fieldset className="flex-1">
 							<legend>MIDI Stats</legend>
 							<p>
-								<b>Last MIDI message: </b>{this.getLastMessageString()}<br />
-								Notes down: {notesDown}
+								Last MIDI message: {this.getLastMessageString()}<br />
+								Total notes down: {notesDown}<br />
+								<button onClick={event => this.handleResetDevices()}>Reset state for all devices</button>
 							</p>
 						</fieldset>
 					)}

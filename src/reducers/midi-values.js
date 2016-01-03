@@ -9,6 +9,7 @@ const CC_CHANGE = 'CC_CHANGE'
 const AFTERTOUCH_CHANGE = 'AFTERTOUCH_CHANGE'
 const PITCHBEND_CHANGE = 'PITCHBEND_CHANGE'
 const UNKNOWN_COMMAND = 'UNKNOWN_COMMAND'
+const RESET_VALUES = 'RESET_VALUES'
 
 /*
 // device structure
@@ -45,6 +46,8 @@ export default function values(state = initialState, action = {}) {
 			return state.setIn([action.device.id, 'aftertouch'], message.velocity);
 		case PITCHBEND_CHANGE:
 			return state.setIn([action.device.id, 'pitchbend'], message.velocity);
+		case RESET_VALUES:
+			return initialState;
 		default:
 			return state;
 	}
@@ -79,6 +82,8 @@ export function midiMessageReceived(device, _message, store) {
 			return { type: UNKNOWN_COMMAND }
 	}
 }
+
+export const resetValues = () => ({ type: RESET_VALUES });
 
 // queries
 export function isNoteDown(globalState, deviceId, channel, key) {

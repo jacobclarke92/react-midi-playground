@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import autobind from 'autobind-decorator'
-import keycode from 'keycode'
 import _ from 'lodash'
 
 import Slider from 'rc-slider'
@@ -38,30 +37,6 @@ export default class App extends Component {
 		};
 	}
 
-	// bind key events before first render
-	componentWillMount() {
-		document.addEventListener('keydown', this.handleKeyDown);
-		document.addEventListener('keyup', this.handleKeyUp);
-	}
-
-	// unbind key events before component unmounts
-	componentWillUnmount() {
-		document.removeEventListener('keydown', this.handleKeyDown);
-		document.removeEventListener('keyup', this.handleKeyUp);
-	}
-
-	@autobind
-	handleKeyDown(e) {
-		const key = keycode(e);
-		if(key == 'command' || key == 'ctrl') this.ctrlKeyPressed = true;
-	}
-
-	@autobind
-	handleKeyUp(e) {
-		const key = keycode(e);
-		if(key == 'command' || key == 'ctrl') this.ctrlKeyPressed = false;
-	}
-
 	componentWillUpdate(nextProps, nextState) {
 		if(!_.isEqual(this.props.lastMidiMessage, nextProps.lastMidiMessage) && nextProps.lastMidiMessage.command === 11) {
 			this.setState({sliderValue: nextProps.lastMidiMessage.velocity});
@@ -73,11 +48,7 @@ export default class App extends Component {
 	handleDeviceClick(deviceId) {
 		let { dispatch, selectedDevices } = this.props;
 		const isActive = _.contains(selectedDevices, deviceId);
-		if(this.ctrlKeyPressed) {
-			dispatch( isActive ? deviceDeselected(deviceId) : deviceSelected(deviceId) );
-		}else{
-			dispatch(setSelectedDevices([deviceId]));
-		}
+		dispatch( isActive ? deviceDeselected(deviceId) : deviceSelected(deviceId) );
 	}
 
 	// easier than doing the logic in render function

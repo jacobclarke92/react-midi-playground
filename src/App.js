@@ -52,12 +52,14 @@ export default class App extends Component {
 
 	@autobind
 	handleKeyDown(e) {
-		if(keycode(e) == 'command') this.ctrlKeyPressed = true;
+		const key = keycode(e);
+		if(key == 'command' || key == 'ctrl') this.ctrlKeyPressed = true;
 	}
 
 	@autobind
 	handleKeyUp(e) {
-		if(keycode(e) == 'command') this.ctrlKeyPressed = false;
+		const key = keycode(e);
+		if(key == 'command' || key == 'ctrl') this.ctrlKeyPressed = false;
 	}
 
 	componentWillUpdate(nextProps, nextState) {

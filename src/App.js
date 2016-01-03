@@ -19,7 +19,7 @@ import { deviceSelected, deviceDeselected, setSelectedDevices } from 'reducers/s
 		devices,
 		selectedDevices,
 		notesDown,
-		midiEnabled: state.midi.enabled,
+		midiEnabled: state.midiStatus.enabled,
 		lastMidiMessage: state.lastMidiMessage,
 	}
 })

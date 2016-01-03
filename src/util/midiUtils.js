@@ -13,9 +13,9 @@ export function getMidiMessageObject(message = []) {
 	}
 }
 
-export function getCommandString(commandNum) {
-	switch(commandNum) {
-		case 9: return 'Note on'; break;
+export function getCommandString(messageObject) {
+	switch(messageObject.command) {
+		case 9: return messageObject.velocity === 0 ? 'Note off' : 'Note on'; break;
 		case 8: return 'Note off'; break;
 		case 11: return 'CC change'; break;
 		case 13: return 'Aftertouch change'; break;

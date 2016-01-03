@@ -84,7 +84,7 @@ export default class App extends Component {
 		if(!lastMidiMessage || !Object.keys(lastMidiMessage).length) return null;
 		return (
 			<span>
-				{getCommandString(lastMidiMessage.command)} <b>{lastMidiMessage.note}</b> 
+				{getCommandString(lastMidiMessage)} <b>{lastMidiMessage.note}</b> 
 				&nbsp;({lastMidiMessage.velocity ? 'velocity: '+lastMidiMessage.velocity+', ' : ''}channel: {lastMidiMessage.channel}, key: {lastMidiMessage.key})
 			</span>
 		);

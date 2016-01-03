@@ -65,7 +65,7 @@ export function midiMessageReceived(device, _message, store) {
 	
 	switch (message.command) {
 		case 9: 
-			return { device, message, type: NOTE_ON }
+			return { device, message, type: message.velocity === 0 ? NOTE_OFF : NOTE_ON }
 		case 8: 
 			return { device, message, type: NOTE_OFF }
 		case 11: 

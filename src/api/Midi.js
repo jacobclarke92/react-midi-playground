@@ -13,7 +13,7 @@ export function requestAccess(successCallback = () => {}, failureCallback = () =
 	if(midiAccess !== null) {
 		return midiAccess;
 	}else{
-		console.log('Requesting MIDI Access');
+		console.log('🕐 Requesting MIDI Access');
 		if(isAvailable()) {
 			return navigator.requestMIDIAccess({sysex: false}).then(
 				midiAccessObject => {

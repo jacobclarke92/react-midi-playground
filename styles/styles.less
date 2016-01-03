@@ -41,9 +41,23 @@ legend {
 	padding: 0 @gutter;
 }
 
-p, li {
+a, a:visited {
+	color: @primary;
+	text-decoration: none;
+}
+
+a:hover {
+	color: darken(@primary, 5%);
+}
+
+p {
+	line-height: 150%;
+}
+
+li {
 	line-height: 100%;
 }
+
 
 .status {
 	position: fixed;

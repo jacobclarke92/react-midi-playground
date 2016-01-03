@@ -10,6 +10,17 @@ import { getMidiMessageObject, getCommandString } from 'util/midiUtils'
 import { getTotalNotesDownForDevice, getTotalNotesDownForDevices } from 'reducers/midi-values'
 import { deviceSelected, deviceDeselected, setSelectedDevices } from 'reducers/selected-midi-devices'
 
+const Url = props => (<a href={props.href} target="_blank">{props.children}</a>);
+const links = {
+	jazzPlugin: 'http://jazz-soft.net/download/Jazz-Plugin/',
+	touchOSC_iOS: 'https://itunes.apple.com/au/app/touchosc/id288120394?mt=8',
+	touchOSC_android: 'https://play.google.com/store/apps/details?id=net.hexler.touchosc_a',
+	touchOSCbridge: 'http://hexler.net/software/touchosc#downloads',
+	touchOSCbridge_mac: 'http://hexler.net/mint/pepper/orderedlist/downloads/download.php?file=http%3A//hexler.net/pub/touchosc/touchosc-bridge-1.3.1-osx.zip',
+	touchOSCbridge_windows: 'http://hexler.net/mint/pepper/orderedlist/downloads/download.php?file=http%3A//hexler.net/pub/touchosc/touchosc-bridge-1.3.1-win32.zip',
+}
+
+// connect redux store to class with custom variables
 @connect(state => {
 	const devices = state.midiDevices.filter(device => device.type == 'input');
 	const selectedDevices = state.selectedMidiDevices;
@@ -77,12 +88,14 @@ export default class App extends Component {
 					<ul>
 						{!midiEnabled ? (
 							<p>
-								MIDI is not supported natively on your browser. 
-								<a href="http://jazz-soft.net/download/Jazz-Plugin/">Download plugin</a>
+								MIDI is not supported natively on your browser.<br />
+								Download <Url href={links.jazzPlugin}>Jazz Plugin</Url> for all major browsers.
 							</p>
-						) : !devices ? (
+						) : (!devices || !devices.length)  ? (
 							<p>
-								No MIDI devices.
+								No MIDI devices found.<br />
+								If you have no USB MIDI interfaces try TouchOSC for <Url href={links.touchOSC_iOS}>iOS</Url> and <Url href={links.touchOSC_android}>Android</Url>,<br />
+								coupled with the <Url href={links.touchOSC_bridge}>TouchOSC Bridge</Url> app for <Url href={links.touchOSCbridge_windows}>Windows</Url> and <Url href={links.touchOSCbridge_mac}>Mac</Url>. 
 							</p>
 						) : devices.map((device,i) =>
 							<li key={i} className={_.contains(selectedDevices, device.id) && 'active'} onClick={event => this.handleDeviceClick(device.id)}>
@@ -90,8 +103,13 @@ export default class App extends Component {
 							</li>
 						)}
 					</ul>
-					<p><b>Last MIDI message: </b>{this.getLastMessageString()}</p>
-					<p>Notes down: {notesDown}</p>
+					{midiEnabled && devices && devices.length > 0 && (
+						<p>
+							<b>Last MIDI message: </b>{this.getLastMessageString()}<br />
+							Notes down: {notesDown}
+						</p>
+					)}
+					
 				</fieldset>
 				<br />
 				<fieldset>

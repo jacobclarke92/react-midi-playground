@@ -8,11 +8,13 @@ import Slider from 'rc-slider'
 
 import * as Midi from 'api/Midi'
 import { getMidiMessageObject, getCommandString } from 'util/midiUtils'
-import { getDeviceNotesDownTotal } from 'reducers/midi-values'
+import { getTotalNotesDownForDevice, getTotalNotesDownForDevices } from 'reducers/midi-values'
+
+let selectedDeviceIds = [];
 
 @connect(state => {
 	const devices = state.midiDevices.filter(device => device.type == 'input');
-	const notesDown = devices.length ? getDeviceNotesDownTotal(state, devices[0].id) : 0;
+	const notesDown = selectedDeviceIds.length ? getTotalNotesDownForDevices(state, selectedDeviceIds) : 0;
 	return {
 		devices,
 		notesDown,
@@ -27,7 +29,7 @@ export default class App extends Component {
 		super(props);
 
 		// variables that don't need to be stored in state
-		this.ctrlKeyPressed = false;;
+		this.ctrlKeyPressed = false;
 
 		// set react state
 		this.state = {
@@ -74,7 +76,7 @@ export default class App extends Component {
 		}else{
 			activeDevices = [device];
 		}
-
+		selectedDeviceIds = activeDevices.map(device => device.id);
 		this.setState({activeDevices});
 	}
 

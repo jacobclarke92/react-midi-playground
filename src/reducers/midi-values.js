@@ -54,6 +54,7 @@ export default function values(state = initialState, action = {}) {
 let lastTime = new Date().getTime();
 export function midiMessageReceived(device, _message, store) {
 	const message = getMidiMessageObject(_message);
+	// console.log('Midi values reducer received message', device.id, message);
 	if(new Date().getTime() - lastTime < 1000/60) {
 		const lastMidiMessage = store.getState().lastMidiMessage;
 		if(lastMidiMessage.deviceId && lastMidiMessage.deviceId === device.id && lastMidiMessage.key === message.key) {
@@ -85,8 +86,18 @@ export function isNoteDown(globalState, deviceId, channel, key) {
 	return (value === 0) ? false : true;
 }
 
-export function getDeviceNotesDownTotal(globalState, deviceId) {
-	const device = globalState.midiValues.get(deviceId);
-	if(!device) return 0;
-	return device.get('keys').reduce((notes, channel) => notes + channel.size, 0);
+export function getTotalNotesDownForDevice(globalState, deviceId) {
+	const deviceChannels = globalState.midiValues.getIn([deviceId, 'keys']) || [];
+	return deviceChannels.reduce((notes, channel) => notes + channel.size, 0);
+}
+
+export function getTotalNotesDownForDevices(globalState, deviceIds) {
+	let keys = 0;
+	for(let deviceId of deviceIds) {
+		const deviceChannels = globalState.midiValues.getIn([deviceId, 'keys']) || [];
+		deviceChannels.map(deviceChannel => {
+			keys += deviceChannel.keySeq().size;
+		});
+	}
+	return keys;
 }

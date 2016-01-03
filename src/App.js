@@ -20,7 +20,7 @@ const links = {
 	touchOSCbridge_windows: 'http://hexler.net/mint/pepper/orderedlist/downloads/download.php?file=http%3A//hexler.net/pub/touchosc/touchosc-bridge-1.3.1-win32.zip',
 }
 
-// connect redux store to class with custom variables
+// connect redux store to App with custom variables
 @connect(state => {
 	const devices = state.midiDevices.filter(device => device.type == 'input');
 	const selectedDevices = state.selectedMidiDevices;
@@ -83,40 +83,44 @@ export default class App extends Component {
 				<div className="status">
 
 				</div>
-				<fieldset className="devices">
-					<legend>Current MIDI input devices:</legend>
-					<ul>
-						{!midiEnabled ? (
-							<p>
-								MIDI is not supported natively on your browser.<br />
-								Download <Url href={links.jazzPlugin}>Jazz Plugin</Url> for all major browsers.
-							</p>
-						) : (!devices || !devices.length)  ? (
-							<p>
-								No MIDI devices found.<br />
-								If you have no USB MIDI interfaces try TouchOSC for <Url href={links.touchOSC_iOS}>iOS</Url> and <Url href={links.touchOSC_android}>Android</Url>,<br />
-								coupled with the <Url href={links.touchOSC_bridge}>TouchOSC Bridge</Url> app for <Url href={links.touchOSCbridge_windows}>Windows</Url> and <Url href={links.touchOSCbridge_mac}>Mac</Url>. 
-							</p>
-						) : devices.map((device,i) =>
-							<li key={i} className={_.contains(selectedDevices, device.id) && 'active'} onClick={event => this.handleDeviceClick(device.id)}>
-								{(device.active ? '◉ ' : '◎ ') + device.name}
-							</li>
-						)}
-					</ul>
+				<div className="flex-container">
+					<fieldset className="devices flex-1">
+						<legend>Current MIDI input devices:</legend>
+						<ul>
+							{!midiEnabled ? (
+								<p>
+									MIDI is not supported natively on your browser.<br />
+									Download <Url href={links.jazzPlugin}>Jazz Plugin</Url> for all major browsers.
+								</p>
+							) : (!devices || !devices.length)  ? (
+								<p>
+									No MIDI devices found.<br />
+									If you have no USB MIDI interfaces try TouchOSC for <Url href={links.touchOSC_iOS}>iOS</Url> and <Url href={links.touchOSC_android}>Android</Url>,<br />
+									coupled with the <Url href={links.touchOSC_bridge}>TouchOSC Bridge</Url> app for <Url href={links.touchOSCbridge_windows}>Windows</Url> and <Url href={links.touchOSCbridge_mac}>Mac</Url>. 
+								</p>
+							) : devices.map((device,i) =>
+								<li key={i} className={_.contains(selectedDevices, device.id) && 'active'} onClick={event => this.handleDeviceClick(device.id)}>
+									{(device.active ? '◉ ' : '◎ ') + device.name}
+								</li>
+							)}
+						</ul>
+					</fieldset>
+
 					{midiEnabled && devices && devices.length > 0 && (
-						<p>
-							<b>Last MIDI message: </b>{this.getLastMessageString()}<br />
-							Notes down: {notesDown}
-						</p>
+						<fieldset className="flex-1">
+							<legend>MIDI Stats</legend>
+							<p>
+								<b>Last MIDI message: </b>{this.getLastMessageString()}<br />
+								Notes down: {notesDown}
+							</p>
+						</fieldset>
 					)}
 					
-				</fieldset>
-				<br />
-				<fieldset>
-					<legend>Some slider</legend>
-					<Slider max={127} value={sliderValue} onChange={sliderValue => this.setState({sliderValue})} />
-				</fieldset>
-
+					<fieldset className="flex-1">
+						<legend>Some control panel</legend>
+						<Slider max={127} value={sliderValue} onChange={sliderValue => this.setState({sliderValue})} />
+					</fieldset>
+				</div>
 			</div>
 		);
 	}

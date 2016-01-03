@@ -110,7 +110,7 @@ export default class App extends Component {
 					</fieldset>
 
 					{midiEnabled && devices && devices.length > 0 && (
-						<fieldset className="flex-1">
+						<fieldset className="flex-1 flex-grow-2">
 							<legend>MIDI Stats</legend>
 							<p>
 								Last MIDI message: {this.getLastMessageString()}<br />

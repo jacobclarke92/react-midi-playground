@@ -9,14 +9,15 @@ import Slider from 'rc-slider'
 import * as Midi from 'api/Midi'
 import { getMidiMessageObject, getCommandString } from 'util/midiUtils'
 import { getTotalNotesDownForDevice, getTotalNotesDownForDevices } from 'reducers/midi-values'
-
-let selectedDeviceIds = [];
+import { deviceSelected, deviceDeselected, setSelectedDevices } from 'reducers/selected-midi-devices'
 
 @connect(state => {
 	const devices = state.midiDevices.filter(device => device.type == 'input');
-	const notesDown = selectedDeviceIds.length ? getTotalNotesDownForDevices(state, selectedDeviceIds) : 0;
+	const selectedDevices = state.selectedMidiDevices;
+	const notesDown = selectedDevices.length ? getTotalNotesDownForDevices(state, selectedDevices) : 0;
 	return {
 		devices,
+		selectedDevices,
 		notesDown,
 		midiEnabled: state.midi.enabled,
 		lastMidiMessage: state.lastMidiMessage,
@@ -33,7 +34,6 @@ export default class App extends Component {
 
 		// set react state
 		this.state = {
-			activeDevices: [],
 			sliderValue: 0,
 		};
 	}
@@ -68,16 +68,14 @@ export default class App extends Component {
 
 	// called by device onClick
 	@autobind
-	handleDeviceClick(device) {
-		let { activeDevices } = this.state;
-		const isActive = _.contains(activeDevices, device);
+	handleDeviceClick(deviceId) {
+		let { dispatch, selectedDevices } = this.props;
+		const isActive = _.contains(selectedDevices, deviceId);
 		if(this.ctrlKeyPressed) {
-			activeDevices = !isActive ? [...activeDevices, device] : activeDevices.filter(activeDevice => !_.isEqual(activeDevice, device));
+			dispatch( isActive ? deviceDeselected(deviceId) : deviceSelected(deviceId) );
 		}else{
-			activeDevices = [device];
+			dispatch(setSelectedDevices([deviceId]));
 		}
-		selectedDeviceIds = activeDevices.map(device => device.id);
-		this.setState({activeDevices});
 	}
 
 	// easier than doing the logic in render function
@@ -93,8 +91,8 @@ export default class App extends Component {
 	}
 
 	render() {
-		const { midiEnabled, devices, notesDown } = this.props;
-		const { activeDevices, devicesReceivingData, sliderValue } = this.state;
+		const { midiEnabled, devices, selectedDevices, notesDown } = this.props;
+		const { devicesReceivingData, sliderValue } = this.state;
 		return (
 			<div>
 				<h1>React MIDI Interface</h1>
@@ -114,7 +112,7 @@ export default class App extends Component {
 								No MIDI devices.
 							</p>
 						) : devices.map((device,i) =>
-							<li key={i} className={_.contains(activeDevices, device) && 'active'} onClick={event => this.handleDeviceClick(device)}>
+							<li key={i} className={_.contains(selectedDevices, device.id) && 'active'} onClick={event => this.handleDeviceClick(device.id)}>
 								{(device.active ? '◉ ' : '◎ ') + device.name}
 							</li>
 						)}

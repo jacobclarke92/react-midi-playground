@@ -1,7 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { createStore } from 'redux'
+import { compose, createStore } from 'redux'
 import { Provider } from 'react-redux'
+import persistState from 'redux-localstorage'
 
 import App from 'App'
 import * as Midi from 'api/Midi'
@@ -11,13 +12,21 @@ import { deviceConnected, deviceDisconnected, devicesUpdated, deviceActive } fro
 import { midiMessageReceived } from 'reducers/midi-values'
 import { updateLastMidiMessage } from 'reducers/last-midi-message'
 
-const store = createStore(reducer);
+const createPersistentStore = compose(
+	persistState(['selectedMidiDevices'])
+)(createStore);
+
+const store = createPersistentStore(reducer);
 // store.subscribe(() => console.log('STORE UPDATED', store.getState()));
 
+// request midi access
 Midi.requestAccess(
 	midiAccessObject => {
+		// add midi listeners to adjust store on change
 		Midi.addStateListener(handleMidiStateChange);
 		Midi.addGlobalMidiListener(handleMidiMessage);
+
+		// set init state for store
 		store.dispatch(midiEnabled());
 		store.dispatch(devicesUpdated([
 			...Midi.getMidiInputDevices(),

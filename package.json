@@ -38,6 +38,7 @@
     "react-dom": "^0.14.3",
     "react-redux": "^4.0.6",
     "redux": "^3.0.5",
+    "redux-localstorage": "^0.4.0",
     "web-midi-api": "^1.4.4"
   }
 }

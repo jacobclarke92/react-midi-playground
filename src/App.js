@@ -3,8 +3,6 @@ import { connect } from 'react-redux'
 import autobind from 'autobind-decorator'
 import _ from 'lodash'
 
-import Slider from 'rc-slider'
-
 import * as Midi from 'api/Midi'
 import { getMidiMessageObject, getCommandString } from 'util/midiUtils'
 import { resetValues, getTotalNotesDownForDevices } from 'reducers/midi-values'
@@ -18,6 +16,21 @@ const links = {
 	touchOSCbridge: 'http://hexler.net/software/touchosc#downloads',
 	touchOSCbridge_mac: 'http://hexler.net/mint/pepper/orderedlist/downloads/download.php?file=http%3A//hexler.net/pub/touchosc/touchosc-bridge-1.3.1-osx.zip',
 	touchOSCbridge_windows: 'http://hexler.net/mint/pepper/orderedlist/downloads/download.php?file=http%3A//hexler.net/pub/touchosc/touchosc-bridge-1.3.1-win32.zip',
+}
+
+class Slider extends Component {
+	static defaultProps = {
+		min: 0,
+		max: 127,
+		value: 0,
+		step: 1,
+		onChange: null,
+	}
+	render() {
+		return (
+			<input type="range" min={this.props.min} max={this.props.max} value={this.props.value} step={this.props.step} onChange={this.props.onChange} />
+		);
+	}
 }
 
 // connect redux store to App with custom variables
@@ -122,7 +135,7 @@ export default class App extends Component {
 					
 					<fieldset className="flex-1">
 						<legend>Some control panel</legend>
-						<Slider max={127} value={sliderValue} onChange={sliderValue => this.setState({sliderValue})} />
+						<Slider value={sliderValue} onChange={sliderValue => this.setState({sliderValue})} />
 					</fieldset>
 				</div>
 			</div>

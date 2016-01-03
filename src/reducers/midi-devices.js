@@ -9,6 +9,7 @@ const DEVICE_INACTIVE = 'DEVICE_INACTIVE'
 
 // initial state
 const initialState = [];
+let blacklistedDevices = [];
 
 // reducer
 export default function devices(state = initialState, action = {}) {
@@ -37,23 +38,28 @@ export default function devices(state = initialState, action = {}) {
 // actions
 export function deviceConnected(device) {
 	return {
-		type: DEVICE_CONNECTED,
+		type: _.contains(blacklistedDevices, device.id) ? null : DEVICE_CONNECTED,
 		device,
 	}
 }
 
 export function deviceDisconnected(device) {
 	return {
-		type: DEVICE_DISCONNECTED,
+		type: _.contains(blacklistedDevices, device.id) ? null : DEVICE_DISCONNECTED,
 		device,
 	}
 }
 
-export function devicesUpdated(devices) {
+export function devicesUpdated(_devices) {
+	const devices = _.clone(_devices).filter(device => !_.contains(blacklistedDevices, device.id));
 	return {
 		type: DEVICES_UPDATED,
 		devices,
 	}
+}
+
+export function setBlacklistedDevices(deviceIds) {
+	blacklistedDevices = deviceIds;
 }
 
 const deviceActiveTimeouts = [];

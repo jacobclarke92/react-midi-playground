@@ -8,7 +8,7 @@ import App from 'App'
 import * as Midi from 'api/Midi'
 import reducer from 'reducers'
 import { midiEnabled, midiDisabled } from 'reducers/midi-status'
-import { deviceConnected, deviceDisconnected, devicesUpdated, deviceActive } from 'reducers/midi-devices'
+import { deviceConnected, deviceDisconnected, devicesUpdated, deviceActive, setBlacklistedDevices } from 'reducers/midi-devices'
 import { midiMessageReceived } from 'reducers/midi-values'
 import { updateLastMidiMessage } from 'reducers/last-midi-message'
 
@@ -19,15 +19,19 @@ const createPersistentStore = compose(
 const store = createPersistentStore(reducer);
 // store.subscribe(() => console.log('STORE UPDATED', store.getState()));
 
+// I have ipMIDI installed and I don't need it to be listed
+const blacklistedDevices = ['-1157686251'];
+
 // request midi access
 Midi.requestAccess(
 	midiAccessObject => {
-		// add midi listeners to adjust store on change
+		// add midi listeners to adjust store
 		Midi.addStateListener(handleMidiStateChange);
 		Midi.addGlobalMidiListener(handleMidiMessage);
 
 		// set init state for store
 		store.dispatch(midiEnabled());
+		setBlacklistedDevices(blacklistedDevices);
 		store.dispatch(devicesUpdated([
 			...Midi.getMidiInputDevices(),
 			...Midi.getMidiOutputDevices()

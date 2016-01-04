@@ -45,18 +45,17 @@ p {
 
 button {
 	cursor: pointer;
-	background-color: @light-grey;
-	border: 1px solid darken(@light-grey, 5%);
+	background-color: lighten(@light-grey, 5%);
+	border: 1px solid @light-grey;
 	padding: @button-padding;
 	margin: @gutter/2 0;
 	outline: 0;
 	font-size: 0.9rem;
-	.transition(background-color @transition-fast);
-	.transition(border @transition-fast);
+	.transition(~"background-color @{transition-fast}, border @{transition-fast}");
 }
 
 button:hover {
-	background-color: lighten(@light-grey, 5%);
+	background-color: lighten(@light-grey, 10%);
 	border-color: lighten(@light-grey, 5%);
 }
 
@@ -83,6 +82,8 @@ button:hover {
 			list-style: none;
 			cursor: pointer;
 			padding: 5px;
+			.transition(background-color @transition-fast);
+			
 			&:hover {
 				background-color: fade(@primary, 5%);
 			}

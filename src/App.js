@@ -6,18 +6,10 @@ import _ from 'lodash'
 import Url from 'components/Url'
 import Slider from 'components/Slider'
 
+import * as Links from 'constants/links'
 import { getLastMessageString } from 'util/midiUtils'
 import { resetValues, getTotalNotesDownForDevices } from 'reducers/midi-values'
 import { deviceSelected, deviceDeselected, setSelectedDevices } from 'reducers/selected-midi-devices'
-
-const links = {
-	jazzPlugin: 'http://jazz-soft.net/download/Jazz-Plugin/',
-	touchOSC_iOS: 'https://itunes.apple.com/au/app/touchosc/id288120394?mt=8',
-	touchOSC_android: 'https://play.google.com/store/apps/details?id=net.hexler.touchosc_a',
-	touchOSCbridge: 'http://hexler.net/software/touchosc#downloads',
-	touchOSCbridge_mac: 'http://hexler.net/mint/pepper/orderedlist/downloads/download.php?file=http%3A//hexler.net/pub/touchosc/touchosc-bridge-1.3.1-osx.zip',
-	touchOSCbridge_windows: 'http://hexler.net/mint/pepper/orderedlist/downloads/download.php?file=http%3A//hexler.net/pub/touchosc/touchosc-bridge-1.3.1-win32.zip',
-}
 
 // connect redux store to App with custom variables
 @connect(state => {
@@ -38,15 +30,13 @@ export default class App extends Component {
 	constructor(props) {
 		super(props);
 
-		// variables that don't need to be stored in state
-		this.ctrlKeyPressed = false;
-
 		// set react state
 		this.state = {
 			sliderValue: 0,
 		};
 	}
 
+	// temporary code for displaying how midi CC values can change elements
 	componentWillUpdate(nextProps, nextState) {
 		if(!_.isEqual(this.props.lastMidiMessage, nextProps.lastMidiMessage) && nextProps.lastMidiMessage.command === 11) {
 			this.setState({sliderValue: nextProps.lastMidiMessage.velocity});
@@ -60,12 +50,8 @@ export default class App extends Component {
 		dispatch( isActive ? deviceDeselected(deviceId) : deviceSelected(deviceId) );
 	}
 
-	handleResetDevices() {
-		this.props.dispatch(resetValues());
-	}
-
 	render() {
-		const { midiEnabled, devices, selectedDevices, notesDown, lastMidiMessage } = this.props;
+		const { dispatch, midiEnabled, devices, selectedDevices, notesDown, lastMidiMessage } = this.props;
 		const { devicesReceivingData, sliderValue } = this.state;
 		return (
 			<div>
@@ -80,13 +66,13 @@ export default class App extends Component {
 							{!midiEnabled ? (
 								<p>
 									MIDI is not supported natively on your browser.<br />
-									Download <Url href={links.jazzPlugin}>Jazz Plugin</Url> for all major browsers.
+									Download <Url href={Links.jazzPlugin}>Jazz Plugin</Url> for all major browsers.
 								</p>
 							) : (!devices || !devices.length)  ? (
 								<p>
 									No MIDI devices found.<br />
-									If you have no USB MIDI interfaces try TouchOSC for <Url href={links.touchOSC_iOS}>iOS</Url> and <Url href={links.touchOSC_android}>Android</Url>,<br />
-									coupled with the <Url href={links.touchOSC_bridge}>TouchOSC Bridge</Url> app for <Url href={links.touchOSCbridge_windows}>Windows</Url> and <Url href={links.touchOSCbridge_mac}>Mac</Url>. 
+									If you have no USB MIDI interfaces try TouchOSC for <Url href={Links.touchOSC_iOS}>iOS</Url> and <Url href={Links.touchOSC_android}>Android</Url>,<br />
+									coupled with the <Url href={Links.touchOSC_bridge}>TouchOSC Bridge</Url> app for <Url href={Links.touchOSCbridge_windows}>Windows</Url> and <Url href={Links.touchOSCbridge_mac}>Mac</Url>. 
 								</p>
 							) : devices.map((device,i) =>
 								<li key={i} className={_.contains(selectedDevices, device.id) && 'active'} onClick={event => this.handleDeviceClick(device.id)}>
@@ -102,7 +88,7 @@ export default class App extends Component {
 							<p>
 								Last MIDI message: {getLastMessageString(lastMidiMessage)}<br />
 								Total notes down: {notesDown}<br />
-								<button onClick={event => this.handleResetDevices()}>Reset state for all devices</button>
+								<button onClick={event => dispatch(resetValues())}>Reset state for all devices</button>
 							</p>
 						</fieldset>
 					)}

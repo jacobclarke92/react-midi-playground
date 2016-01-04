@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux'
+
 import midiStatus from 'reducers/midi-status'
 import midiDevices from 'reducers/midi-devices'
 import midiValues from 'reducers/midi-values'

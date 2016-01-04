@@ -1,5 +1,6 @@
 import _ from 'lodash'
 
+// initial state
 let midiAccess = null;
 let stateListeners = [];
 let globalListeners = [];
@@ -13,8 +14,10 @@ export function requestAccess(successCallback = () => {}, failureCallback = () =
 	if(midiAccess !== null) {
 		return midiAccess;
 	}else{
-		console.log('🕐 Requesting MIDI Access');
 		if(isAvailable()) {
+			console.log('🕐 Requesting MIDI Access');
+
+			// sysex is midi system messages, such as clock sync, which is considered garbage data most of the time
 			return navigator.requestMIDIAccess({sysex: false}).then(
 				midiAccessObject => {
 					onMidiSuccess(midiAccessObject);
@@ -30,10 +33,6 @@ export function requestAccess(successCallback = () => {}, failureCallback = () =
 			return false;
 		}
 	}
-}
-
-export function getAccessObject() {
-	return midiAccess;
 }
 
 export function getMidiInputDevices() {
@@ -60,6 +59,8 @@ export function getMidiOutputDevices() {
 	return devices;
 }
 
+// we need to create listeners because onmidimessage & onstatechange can only be attached to one function at a time
+// so we keep those attached functions private in here and trigger callbacks manually
 export function addStateListener(callback) {
 	if(!_.contains(stateListeners, callback)) {
 		stateListeners.push(callback);
@@ -96,6 +97,7 @@ export function removeGlobalMidiListener(callback) {
 	}
 }
 
+// api system functions
 function nope(returning = false) {
 	console.warn('No midi access at present');
 	return returning;
@@ -115,6 +117,8 @@ function onStateChange(event) {
 	for(let listener of stateListeners) {
 		listener(event);
 	}
+
+	// unsure if checking constructor name is kosher, onStateChange seems to only be MIDIConnectionEvent anyway
 	if(event.constructor.name == 'MIDIConnectionEvent') {
 		const port = event.port;
 		const status = port.state == 'connected' ? '🔵' : '🔴';

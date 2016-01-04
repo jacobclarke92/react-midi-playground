@@ -1,5 +1,6 @@
 import React from 'react'
-const notes = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
+import { musicNotes } from 'constants/general'
+import { NOTE_ON, NOTE_OFF, CC_CHANGE, AFTERTOUCH_CHANGE, PITCHBEND_CHANGE } from 'constants/midi-commands'
 
 export function getMidiMessageObject(message = []) {
 	return {
@@ -8,22 +9,21 @@ export function getMidiMessageObject(message = []) {
 		type:		message[0] & 0xf0,
 		key: 		message[1],
 		octave:		Math.floor(message[1]/12),
-		note:		notes[message[1]%12],
+		note:		musicNotes[message[1]%12],
 		velocity:	message[2],
 	}
 }
 
 export function getCommandString(messageObject) {
 	switch(messageObject.command) {
-		case 9: return messageObject.velocity === 0 ? '🔇' : '🔈'; break;
-		case 8: return '🔇'; break;
-		case 11: return (<span><span style={{fontSize: '28px'}}>⫯</span> cc</span>); break;
-		case 13: return (<span><span style={{fontSize: '28px'}}>⫰</span> aftertouch</span>); break;
-		case 14: return (<span><span style={{fontSize: '28px'}}>⫮</span> pitchbend</span>); break;
+		case NOTE_ON: return messageObject.velocity === 0 ? '🔇' : '🔈'; break;
+		case NOTE_OFF: return '🔇'; break;
+		case CC_CHANGE: return (<span><span style={{fontSize: '28px'}}>⫯</span> cc</span>); break;
+		case AFTERTOUCH_CHANGE: return (<span><span style={{fontSize: '28px'}}>⫰</span> aftertouch</span>); break;
+		case PITCHBEND_CHANGE: return (<span><span style={{fontSize: '28px'}}>⫮</span> pitchbend</span>); break;
 		default: return null;
 	}
 }
-
 
 export function getLastMessageString(lastMidiMessage) {
 	if(!lastMidiMessage || !Object.keys(lastMidiMessage).length) return null;

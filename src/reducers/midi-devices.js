@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import { renderCycleMS } from 'constants/general'
 
 // action types
 const DEVICE_CONNECTED = 'DEVICE_CONNECTED'
@@ -6,6 +7,9 @@ const DEVICE_DISCONNECTED = 'DEVICE_DISCONNECTED'
 const DEVICES_UPDATED = 'DEVICES_UPDATED'
 const DEVICE_ACTIVE = 'DEVICE_ACTIVE'
 const DEVICE_INACTIVE = 'DEVICE_INACTIVE'
+
+// constants
+const deviceActiveStatusTimeoutMS = 50;
 
 // initial state
 const initialState = [];
@@ -62,8 +66,8 @@ export function setBlacklistedDevices(deviceIds) {
 	blacklistedDevices = deviceIds;
 }
 
+// this action is throttled as there's no need to update redux store more than once per render cycle
 const deviceActiveTimeouts = [];
-
 export const deviceActive = _.throttle((device, store) => {
 	
 	if(deviceActiveTimeouts[device.id]) clearTimeout(deviceActiveTimeouts[device.id]);
@@ -73,10 +77,10 @@ export const deviceActive = _.throttle((device, store) => {
 			type: DEVICE_INACTIVE,
 			device,
 		});
-	}, 50);
+	}, deviceActiveStatusTimeoutMS);
 
 	return {
 		type: DEVICE_ACTIVE,
 		device,
 	}
-}, 1000/60);
+}, renderCycleMS);

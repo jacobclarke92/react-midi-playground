@@ -1,10 +1,14 @@
 import _ from 'lodash'
+import { renderCycleMS } from 'constants/general'
 import { getMidiMessageObject } from 'util/midiUtils'
 
+// action types
 const MIDI_MESSAGE_RECEIVED = 'MIDI_MESSAGE_RECEIVED'
 
+// initial state
 const initialState = {};
 
+// reducer
 export default function lastMidiMessage(state = initialState, action = {}) {
 	switch (action.type) {
 		case MIDI_MESSAGE_RECEIVED:
@@ -17,10 +21,12 @@ export default function lastMidiMessage(state = initialState, action = {}) {
 	}
 }
 
+// actions
+// this action is throttled as there's no need to update redux store more than once per render cycle
 export const updateLastMidiMessage = _.throttle((device, message) => {
 	return {
 		type: MIDI_MESSAGE_RECEIVED,
 		message: getMidiMessageObject(message),
 		device,
 	}
-}, 1000/60);
+}, renderCycleMS);

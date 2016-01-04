@@ -1,33 +1,33 @@
 import _ from 'lodash'
 import { Map } from 'immutable'
 import { getMidiMessageObject } from 'util/midiUtils'
+import { NOTE_ON, NOTE_OFF, CC_CHANGE, AFTERTOUCH_CHANGE, PITCHBEND_CHANGE } from 'constants/midi-commands'
 
-// action types
-const NOTE_ON = 'NOTE_ON'
-const NOTE_OFF = 'NOTE_OFF'
-const CC_CHANGE = 'CC_CHANGE'
-const AFTERTOUCH_CHANGE = 'AFTERTOUCH_CHANGE'
-const PITCHBEND_CHANGE = 'PITCHBEND_CHANGE'
+// other action types
 const UNKNOWN_COMMAND = 'UNKNOWN_COMMAND'
 const RESET_VALUES = 'RESET_VALUES'
 
-/*
-// device structure
+// structure of device object 
+/*****
 device = {
 	pitchbend: 0-127,
 	aftertouch: 0-127,
 	CCs: [
+		// channel number
 		0-15: [
+			// cc value
 			0-127: 0-127
 		]
 	],
 	keys: [
+		// channel number
 		0-15: [
+			// note velocity
 			0-127: 0-127
 		]
 	],	
 }
-*/
+*****/
 
 // initial state
 const initialState = new Map();
@@ -54,18 +54,27 @@ export default function values(state = initialState, action = {}) {
 }
 
 // actions
-let lastTime = new Date().getTime();
+export const resetValues = () => ({ type: RESET_VALUES });
+
+let lastTime = null
+const currentTime = () => new Date().getTime();
+const updateLastTime = () => { lastTime = currentTime() };
+updateLastTime();
+
 export function midiMessageReceived(device, _message, store) {
+
+	// to prevent excess updates to redux store we filter out messages received from same key (cc or note)
+	// throttling the function won't work because we don't want to ignore midi messages from different sources
+	// therefore this will have to be optimized as it still chokes when two cc values are moved simultaneously
 	const message = getMidiMessageObject(_message);
-	// console.log('Midi values reducer received message', device.id, message);
-	if(new Date().getTime() - lastTime < 1000/60) {
+	if(currentTime() - lastTime < 1000/60) {
 		const lastMidiMessage = store.getState().lastMidiMessage;
 		if(lastMidiMessage.deviceId && lastMidiMessage.deviceId === device.id && lastMidiMessage.key === message.key) {
-			lastTime = new Date().getTime();
+			updateLastTime()
 			return { type: UNKNOWN_COMMAND };	
 		}
 	}
-	lastTime = new Date().getTime();
+	updateLastTime();
 	
 	switch (message.command) {
 		case 9: 
@@ -82,8 +91,6 @@ export function midiMessageReceived(device, _message, store) {
 			return { type: UNKNOWN_COMMAND }
 	}
 }
-
-export const resetValues = () => ({ type: RESET_VALUES });
 
 // queries
 export function isNoteDown(globalState, deviceId, channel, key) {

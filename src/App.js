@@ -8,7 +8,7 @@ import Slider from 'components/Slider'
 
 import * as Links from 'constants/links'
 import { getLastMessageString } from 'util/midiUtils'
-import { setCC, resetValues, getTotalNotesDownForDevices, getCCValuesForDevices } from 'reducers/midi-values'
+import { setCC, resetValues, getTotalNotesDownForDevices, getCCValuesForDevice, getCCValuesForDevices } from 'reducers/midi-values'
 import { deviceSelected, deviceDeselected, setSelectedDevices } from 'reducers/selected-midi-devices'
 
 const testCCvalues = [7, 16, 17, 18, 10, 19, 80, 81, 20];
@@ -17,12 +17,12 @@ const testCCvalues = [7, 16, 17, 18, 10, 19, 80, 81, 20];
 @connect(state => {
 	const devices = state.midiDevices.filter(device => device.type == 'input').sort((a,b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
 	const selectedDevices = state.selectedMidiDevices;
-	const notesDown = selectedDevices.length ? getTotalNotesDownForDevices(state, selectedDevices) : 0;
-	const ccValues = selectedDevices.length ? getCCValuesForDevices(state, selectedDevices) : 0;
+	const totalNotesDown = selectedDevices.length ? getTotalNotesDownForDevices(state, selectedDevices) : 0;
+	const ccValues = selectedDevices.map(deviceId => getCCValuesForDevice(state, deviceId)).reduce((value, deviceKeys) => value.concat(deviceKeys), []);
 	return {
 		devices,
 		selectedDevices,
-		notesDown,
+		totalNotesDown,
 		ccValues,
 		midiEnabled: state.midiStatus.enabled,
 		lastMidiMessage: state.lastMidiMessage,
@@ -43,7 +43,7 @@ export default class App extends Component {
 	}
 
 	render() {
-		const { dispatch, ccValues, midiEnabled, devices, selectedDevices, notesDown, lastMidiMessage } = this.props;
+		const { dispatch, ccValues, midiEnabled, devices, selectedDevices, totalNotesDown, lastMidiMessage } = this.props;
 		return (
 			<div>
 				<h1>React MIDI Interface</h1>
@@ -81,7 +81,7 @@ export default class App extends Component {
 							<legend>MIDI Stats</legend>
 							<p>
 								Last MIDI message: {getLastMessageString(lastMidiMessage)}<br />
-								Total notes down: {notesDown}<br />
+								Total notes down: {totalNotesDown}<br />
 								<button onClick={event => dispatch(resetValues())}>Reset local state for all MIDI devices</button>
 							</p>
 						</fieldset>

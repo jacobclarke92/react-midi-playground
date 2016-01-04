@@ -115,16 +115,13 @@ export function getTotalNotesDownForDevices(globalState, deviceIds) {
 	return keys;
 }
 
-export function getCCValuesForDevices(globalState, deviceIds) {
+export function getCCValuesForDevice(globalState, deviceId) {
 	const values = [];
-	for(let deviceId of deviceIds) {
-		const deviceChannels = globalState.midiValues.getIn([deviceId, 'CCs']) || new Map();
-		deviceChannels.map(deviceChannel => {
-			const channelKeys = deviceChannel.keySeq().toArray();
-			channelKeys.map(key => {
-				values[key] = deviceChannel.get(key);
-			})
-		});
-	}
+	const deviceChannels = globalState.midiValues.getIn([deviceId, 'CCs']) || new Map();
+	deviceChannels.map(deviceChannel => {
+		deviceChannel.keySeq().toArray().map(key => {
+			values[key] = deviceChannel.get(key);
+		})
+	});
 	return values;
 }

@@ -1,77 +1,80 @@
 /* Very useful tool: http://danielstern.ca/range.css/?ref=css-tricks */
 
-@focus-color: lighten(@light-grey, 5%);
+@slider-thumb-size: 15px;
+@slider-track-size: 3px;
+@slider-track-color: @light-grey;
+
+
+.track() {
+	width: 100%;
+	height: @slider-track-size;
+	cursor: pointer;
+	animate: 0.2s;
+}
+
+.thumb() {
+	.transition(border-color @transition-fast);
+	.square(@slider-thumb-size);
+	border: 2px solid @primary;
+	border-radius: 100%;
+	background-color: @white;
+	cursor: pointer;
+}
 
 input[type=range] {
 	-webkit-appearance: none;
 	width: 100%;
 	margin: 6px 0;
-}
-input[type=range]:focus {
-	outline: none;
-}
-input[type=range]::-webkit-slider-runnable-track {
-	width: 100%;
-	height: 3px;
-	cursor: pointer;
-	background: @light-grey;
-}
-input[type=range]::-webkit-slider-thumb {
-	.transition(border-color @transition-fast);
-	border: 2px solid @primary;
-	height: 15px;
-	width: 15px;
-	border-radius: 15px;
-	background: @white;
-	cursor: pointer;
-	-webkit-appearance: none;
-	margin-top: -6px;
-}
-input[type=range]:focus::-webkit-slider-runnable-track {
-	background: @focus-color;
-}
-input[type=range]::-moz-range-track {
-	width: 100%;
-	height: 3px;
-	cursor: pointer;
-	background: @light-grey;
-}
-input[type=range]::-moz-range-thumb {
-	.transition(border-color @transition-fast);
-	border: 2px solid @primary;
-	height: 15px;
-	width: 15px;
-	border-radius: 15px;
-	background: @white;
-	cursor: pointer;
-}
-input[type=range]::-ms-track {
-	width: 100%;
-	height: 3px;
-	cursor: pointer;
-	background: transparent;
-	border-color: transparent;
-	color: transparent;
-}
-input[type=range]::-ms-fill-lower {
-	background: @light-grey;
-}
-input[type=range]::-ms-fill-upper {
-	background: @focus-color;
-}
-input[type=range]::-ms-thumb {
-	.transition(border-color @transition-fast);
-	border: 2px solid @primary;
-	height: 15px;
-	width: 15px;
-	border-radius: 15px;
-	background: @white;
-	cursor: pointer;
-	height: 3px;
-}
-input[type=range]:focus::-ms-fill-lower {
-	background: @light-grey;
-}
-input[type=range]:focus::-ms-fill-upper {
-	background: @focus-color;
+
+	&:focus {
+		outline: none;
+	}
+
+	// webkit styles
+	&::-webkit-slider-runnable-track {
+		.track();
+		background: @slider-track-color;
+	}
+	&::-webkit-slider-thumb {
+		.thumb();
+		-webkit-appearance: none;
+		margin-top: (@slider-track-size / 2) - (@slider-thumb-size / 2);
+	}
+	&:focus::-webkit-slider-runnable-track {
+		background-color: lighten(@slider-track-color, 5%);
+	}
+
+	// mozilla styles
+	&::-moz-range-track {
+		.track();
+		background-color: @slider-track-color;
+	}
+	&::-moz-range-thumb {
+		.thumb();
+	}
+
+	// IE good lawdd
+	&::-ms-track {
+		.track(); 
+		background: transparent;
+		border-color: transparent;
+		border-width: 100% 0;
+		color: transparent;
+	}
+	&::-ms-fill-lower {
+		background: darken(@slider-track-color, 5%);
+	}
+	&::-ms-fill-upper {
+		background: @slider-track-color;
+	}
+	&::-ms-thumb {
+		.thumb();
+	}
+	&:focus::-ms-fill-lower {
+		background-color: @slider-track-color;
+	}
+	&:focus::-ms-fill-upper {
+		background-color: lighten(@slider-track-color, 5%);
+	}
+
 }

@@ -36,7 +36,7 @@ export default class Slider extends Component {
 	render() {
 		const { mappingEnabled, isMappingTarget, mapped, onChange, alias, ...rest } = this.props;
 		return (
-			<label for={alias}>
+			<label htmlFor={alias}>
 				{alias && titleCase(alias)}
 				<input type="range" id={alias}
 					{...rest} 

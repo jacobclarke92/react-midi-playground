@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import autobind from 'autobind-decorator'
 import classnames from 'classnames'
+import keycode from 'keycode'
 import _ from 'lodash'
 
 import Url from 'components/Url'
@@ -11,6 +12,7 @@ import * as Links from 'constants/links'
 import { SLIDER, BUTTON } from 'constants/mapping-types'
 import { getLastMessageString } from 'utils/midiUtils'
 import { enableMapping, disableMapping } from 'reducers/midi-status'
+import { resetMappings } from 'reducers/midi-mappings'
 import { setCC, resetValues, getTotalNotesDownForDevices, getCCValuesForDevice, getCCValue } from 'reducers/midi-values'
 import { deviceSelected, deviceDeselected, setSelectedDevices } from 'reducers/selected-midi-devices'
 
@@ -36,10 +38,26 @@ const testCCvalues = [7, 16, 17, 18, 10, 19, 80, 81, 20];
 })
 export default class App extends Component {
 
+	componentWillMount() {
+		window.addEventListener('keyup', this.handleKeyUp);
+	}
+
+	@autobind
+	handleKeyUp(event) {
+		switch(keycode(event)) {
+			case 'm':
+				this.toggleMapping()
+		}
+	}
+
 	handleDeviceClick(deviceId) {
 		let { dispatch, selectedDevices } = this.props;
 		const isActive = _.contains(selectedDevices, deviceId);
 		dispatch( isActive ? deviceDeselected(deviceId) : deviceSelected(deviceId) );
+	}
+
+	toggleMapping() {
+		this.props.dispatch(this.props.mappingEnabled ? disableMapping() : enableMapping());
 	}
 
 	setSliderValue(key, velocity) {
@@ -89,13 +107,14 @@ export default class App extends Component {
 								Last MIDI message: {getLastMessageString(lastMidiMessage)}<br />
 								Total notes down: {totalNotesDown}<br />
 								<button onClick={event => dispatch(resetValues())}>Reset local state for all MIDI devices</button>
+								<button onClick={event => dispatch(resetMappings())}>Reset all mappings</button>
 							</p>
 						</fieldset>
 					)}
 					
 					{/* Makeshift control panel */}
 					<fieldset className="flex-1">
-						<legend>Some control panel <button className={mappingEnabled ? 'mapping' : 'primary'} onClick={event => dispatch(mappingEnabled ? disableMapping() : enableMapping())}>Map</button></legend>
+						<legend>Some control panel <button className={mappingEnabled ? 'mapping' : 'primary'} onClick={event => this.toggleMapping()}>Map</button></legend>
 						{mappings.map((mapping, i) => 
 							mapping.type === SLIDER ? (
 								<Slider key={i} value={this.props.getCCValue(mapping)} mapping={mapping} />

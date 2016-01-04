@@ -12,12 +12,13 @@ import { deviceConnected, deviceDisconnected, devicesUpdated, deviceActive, setB
 import { midiMessageReceived } from 'reducers/midi-values'
 import { updateLastMidiMessage } from 'reducers/last-midi-message'
 
-const createPersistentStore = compose(
-	persistState(['selectedMidiDevices'])
-)(createStore);
+// define what parts of store will be saved to localStorage
+const createPersistentStore = compose(persistState([
+	'selectedMidiDevices'
+]))(createStore);
 
+// create store
 const store = createPersistentStore(reducer);
-// store.subscribe(() => console.log('STORE UPDATED', store.getState()));
 
 // I have ipMIDI installed and I don't need it to be listed
 const blacklistedDevices = ['-1157686251'];
@@ -52,7 +53,7 @@ function handleMidiStateChange(event) {
 	}
 }
 
-// functioned called on midi message, regardless of device, channel etc.
+// functioned called on midi message for any device, channel etc.
 function handleMidiMessage(device, message) {
 	store.dispatch(deviceActive(device, store));
 	store.dispatch(midiMessageReceived(device, message, store));

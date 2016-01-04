@@ -23,3 +23,14 @@ export function getCommandString(messageObject) {
 		default: return null;
 	}
 }
+
+
+export function getLastMessageString(lastMidiMessage) {
+	if(!lastMidiMessage || !Object.keys(lastMidiMessage).length) return null;
+	return (
+		<span>
+			{getCommandString(lastMidiMessage)} <b>{lastMidiMessage.note}</b> 
+			&nbsp;({'velocity: '+lastMidiMessage.velocity}, channel: {lastMidiMessage.channel + 1}, key: {lastMidiMessage.key})
+		</span>
+	);
+}

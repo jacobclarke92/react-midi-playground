@@ -6,12 +6,10 @@ import _ from 'lodash'
 import Url from 'components/Url'
 import Slider from 'components/Slider'
 
-import * as Midi from 'api/Midi'
-import { getMidiMessageObject, getCommandString } from 'util/midiUtils'
+import { getLastMessageString } from 'util/midiUtils'
 import { resetValues, getTotalNotesDownForDevices } from 'reducers/midi-values'
 import { deviceSelected, deviceDeselected, setSelectedDevices } from 'reducers/selected-midi-devices'
 
-const Url = props => (<a href={props.href} target="_blank">{props.children}</a>);
 const links = {
 	jazzPlugin: 'http://jazz-soft.net/download/Jazz-Plugin/',
 	touchOSC_iOS: 'https://itunes.apple.com/au/app/touchosc/id288120394?mt=8',
@@ -66,20 +64,8 @@ export default class App extends Component {
 		this.props.dispatch(resetValues());
 	}
 
-	// easier than doing the logic in render function
-	getLastMessageString() {
-		const { lastMidiMessage } = this.props;
-		if(!lastMidiMessage || !Object.keys(lastMidiMessage).length) return null;
-		return (
-			<span>
-				{getCommandString(lastMidiMessage)} <b>{lastMidiMessage.note}</b> 
-				&nbsp;({lastMidiMessage.velocity ? 'velocity: '+lastMidiMessage.velocity+', ' : ''}channel: {lastMidiMessage.channel + 1}, key: {lastMidiMessage.key})
-			</span>
-		);
-	}
-
 	render() {
-		const { midiEnabled, devices, selectedDevices, notesDown } = this.props;
+		const { midiEnabled, devices, selectedDevices, notesDown, lastMidiMessage } = this.props;
 		const { devicesReceivingData, sliderValue } = this.state;
 		return (
 			<div>
@@ -114,7 +100,7 @@ export default class App extends Component {
 						<fieldset className="flex-1 flex-grow-2">
 							<legend>MIDI Stats</legend>
 							<p>
-								Last MIDI message: {this.getLastMessageString()}<br />
+								Last MIDI message: {getLastMessageString(lastMidiMessage)}<br />
 								Total notes down: {notesDown}<br />
 								<button onClick={event => this.handleResetDevices()}>Reset state for all devices</button>
 							</p>

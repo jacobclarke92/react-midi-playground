@@ -38,10 +38,7 @@ export function getAccessObject() {
 
 export function getMidiInputDevices() {
 	const devices = [];
-	if(!midiAccess) {
-		nope();
-		return devices;
-	}
+	if(!midiAccess) return nope(devices);
 
 	const inputs = midiAccess.inputs.values();
 	for(let input = inputs.next(); input && !input.done; input = inputs.next()) {
@@ -54,10 +51,7 @@ export function getMidiInputDevices() {
 
 export function getMidiOutputDevices() {
 	const devices = [];
-	if(!midiAccess) {
-		nope();
-		return devices;
-	}
+	if(!midiAccess) return nope(devices);
 
 	const outputs = midiAccess.outputs.values();
 	for(let output = outputs.next(); output && !output.done; output = outputs.next()) {
@@ -102,9 +96,9 @@ export function removeGlobalMidiListener(callback) {
 	}
 }
 
-function nope() {
+function nope(returning = false) {
 	console.warn('No midi access at present');
-	return false;
+	return returning;
 }
 
 function onMidiSuccess(_midiAccess) {

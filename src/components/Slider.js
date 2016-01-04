@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import autobind from 'autobind-decorator'
 
 export default class Slider extends Component {
 
@@ -11,14 +10,13 @@ export default class Slider extends Component {
 		onChange: null,
 	}
 
-	@autobind
 	onChange(event) {
 		this.props.onChange(event.target.value);
 	}
 
 	render() {
 		return (
-			<input type="range" min={this.props.min} max={this.props.max} value={this.props.value} step={this.props.step} onInput={this.onChange} />
+			<input type="range" min={this.props.min} max={this.props.max} value={this.props.value} step={this.props.step} onInput={this.onChange.bind(this)} />
 		);
 	}
 }

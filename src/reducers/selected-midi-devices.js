@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { getMidiMessageObject } from 'util/midiUtils'
+import { getMidiMessageObject } from 'utils/midiUtils'
 
 const MIDI_DEVICE_SELECTED = 'MIDI_DEVICE_SELECTED'
 const MIDI_DEVICE_DESELECTED = 'MIDI_DEVICE_DESELECTED'

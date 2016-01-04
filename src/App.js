@@ -9,6 +9,7 @@ import Slider from 'components/Slider'
 import * as Links from 'constants/links'
 import { getLastMessageString } from 'util/midiUtils'
 import { setCC, resetValues, getTotalNotesDownForDevices, getCCValuesForDevice } from 'reducers/midi-values'
+import { getLastMessageString } from 'utils/midiUtils'
 import { deviceSelected, deviceDeselected, setSelectedDevices } from 'reducers/selected-midi-devices'
 
 const testCCvalues = [7, 16, 17, 18, 10, 19, 80, 81, 20];

@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import { renderCycleMS } from 'constants/general'
-import { getMidiMessageObject } from 'util/midiUtils'
+import { getMidiMessageObject } from 'utils/midiUtils'
 
 // action types
 const MIDI_MESSAGE_RECEIVED = 'MIDI_MESSAGE_RECEIVED'

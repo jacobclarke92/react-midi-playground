@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import { Map } from 'immutable'
-import { getMidiMessageObject } from 'util/midiUtils'
+import { getMidiMessageObject } from 'utils/midiUtils'
 import { NOTE_ON, NOTE_OFF, CC_CHANGE, AFTERTOUCH_CHANGE, PITCHBEND_CHANGE } from 'constants/midi-commands'
 
 // other action types

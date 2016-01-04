@@ -55,6 +55,8 @@ export default function values(state = initialState, action = {}) {
 // actions
 export const resetValues = () => ({ type: RESET_VALUES });
 
+export const setCC = (device, message) => ({ type: CC_CHANGE, device, message });
+
 let lastTime = null
 const currentTime = () => new Date().getTime();
 const updateLastTime = () => { lastTime = currentTime() };
@@ -111,4 +113,18 @@ export function getTotalNotesDownForDevices(globalState, deviceIds) {
 		});
 	}
 	return keys;
+}
+
+export function getCCValuesForDevices(globalState, deviceIds) {
+	const values = [];
+	for(let deviceId of deviceIds) {
+		const deviceChannels = globalState.midiValues.getIn([deviceId, 'CCs']) || new Map();
+		deviceChannels.map(deviceChannel => {
+			const channelKeys = deviceChannel.keySeq().toArray();
+			channelKeys.map(key => {
+				values[key] = deviceChannel.get(key);
+			})
+		});
+	}
+	return values;
 }

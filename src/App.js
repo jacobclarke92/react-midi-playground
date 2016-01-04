@@ -8,51 +8,42 @@ import Slider from 'components/Slider'
 
 import * as Links from 'constants/links'
 import { getLastMessageString } from 'util/midiUtils'
-import { resetValues, getTotalNotesDownForDevices } from 'reducers/midi-values'
+import { setCC, resetValues, getTotalNotesDownForDevices, getCCValuesForDevices } from 'reducers/midi-values'
 import { deviceSelected, deviceDeselected, setSelectedDevices } from 'reducers/selected-midi-devices'
+
+const testCCvalues = [7, 16, 17, 18, 10, 19, 80, 81, 20];
 
 // connect redux store to App with custom variables
 @connect(state => {
 	const devices = state.midiDevices.filter(device => device.type == 'input').sort((a,b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
 	const selectedDevices = state.selectedMidiDevices;
 	const notesDown = selectedDevices.length ? getTotalNotesDownForDevices(state, selectedDevices) : 0;
+	const ccValues = selectedDevices.length ? getCCValuesForDevices(state, selectedDevices) : 0;
 	return {
 		devices,
 		selectedDevices,
 		notesDown,
+		ccValues,
 		midiEnabled: state.midiStatus.enabled,
 		lastMidiMessage: state.lastMidiMessage,
 	}
 })
 export default class App extends Component {
 
-	// extends class constructor to create inititial class vars
-	constructor(props) {
-		super(props);
-
-		// set react state
-		this.state = {
-			sliderValue: 0,
-		};
-	}
-
-	// temporary code for displaying how midi CC values can change elements
-	componentWillUpdate(nextProps, nextState) {
-		if(!_.isEqual(this.props.lastMidiMessage, nextProps.lastMidiMessage) && nextProps.lastMidiMessage.command === 11) {
-			this.setState({sliderValue: nextProps.lastMidiMessage.velocity});
-		}
-	}
-
-	// called by device onClick
 	handleDeviceClick(deviceId) {
 		let { dispatch, selectedDevices } = this.props;
 		const isActive = _.contains(selectedDevices, deviceId);
 		dispatch( isActive ? deviceDeselected(deviceId) : deviceSelected(deviceId) );
 	}
 
+	setSliderValue(key, velocity) {
+		const { dispatch, lastMidiMessage, selectedDevices } = this.props;
+		const id = ('id' in lastMidiMessage) ? lastMidiMessage.id : selectedDevices.length ? selectedDevices[0] : null;
+		dispatch(setCC({ id }, { key, velocity: parseFloat(velocity), channel: 0 }));
+	}
+
 	render() {
-		const { dispatch, midiEnabled, devices, selectedDevices, notesDown, lastMidiMessage } = this.props;
-		const { devicesReceivingData, sliderValue } = this.state;
+		const { dispatch, ccValues, midiEnabled, devices, selectedDevices, notesDown, lastMidiMessage } = this.props;
 		return (
 			<div>
 				<h1>React MIDI Interface</h1>
@@ -60,6 +51,8 @@ export default class App extends Component {
 
 				</div>
 				<div className="flex-container">
+
+					{/* Midi device list */}
 					<fieldset className="devices flex-1">
 						<legend>Current MIDI input devices:</legend>
 						<ul>
@@ -82,6 +75,7 @@ export default class App extends Component {
 						</ul>
 					</fieldset>
 
+					{/* Midi stats */}
 					{midiEnabled && devices && devices.length > 0 && (
 						<fieldset className="flex-1 flex-grow-2">
 							<legend>MIDI Stats</legend>
@@ -93,10 +87,14 @@ export default class App extends Component {
 						</fieldset>
 					)}
 					
+					{/* Makeshift control panel */}
 					<fieldset className="flex-1">
 						<legend>Some control panel</legend>
-						<Slider value={sliderValue} onChange={sliderValue => this.setState({sliderValue})} />
+						{testCCvalues.map((cc, i) => 
+							<Slider key={i} value={ccValues[cc] || 0} onChange={sliderValue => this.setSliderValue(cc, sliderValue)} />
+						)}
 					</fieldset>
+
 				</div>
 			</div>
 		);

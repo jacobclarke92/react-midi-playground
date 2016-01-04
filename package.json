@@ -6,19 +6,15 @@
   "scripts": {
     "start": "npm run watch & node server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-
     "watch": "npm run watch:js & npm run watch:less",
     "watch:js": "webpack --watch",
     "watch:less": "watch \"npm run build:less\" \"styles\"",
-
     "build": "npm run build:js & npm run build:less",
     "build:js": "watch-less -d styles -r dist -e .css -c -o",
     "build:less": "lessc styles/styles.less > dist/styles.css",
-    
     "watch:deploy": "npm run watch:deploy:js & npm run watch:deploy:less",
     "watch:deploy:js": "webpack --watch -p -v",
     "watch:deploy:less": "watch \"npm run deploy:less\" \"styles\"",
-
     "deploy": "npm run deploy:js & npm run deploy:less",
     "deploy:js": "webpack -p -v",
     "deploy:less": "lessc --clean-css styles/styles.less > dist/styles.css"
@@ -36,6 +32,7 @@
     "babel-runtime": "^6.3.19",
     "express": "^4.13.3",
     "less": "^2.5.3",
+    "less-plugin-clean-css": "^1.5.1",
     "watch": "^0.17.1",
     "webpack": "^1.12.9"
   },

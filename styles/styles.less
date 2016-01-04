@@ -1,7 +1,9 @@
 @import url("https://fonts.googleapis.com/css?family=Lato:300,400,700");
 @import "definitions.less";
 @import "mixins.less";
+
 @import "input-range.less";
+@import "mapping.less";
 
 html {
 	margin: 0;
@@ -28,6 +30,10 @@ fieldset {
 
 legend {
 	padding: 0 @gutter;
+	line-height: 200%;
+	button {
+		margin: 0 0 0 @gutter;
+	}
 }
 
 a, a:visited {
@@ -45,18 +51,15 @@ p {
 
 button {
 	cursor: pointer;
-	background-color: lighten(@light-grey, 5%);
-	border: 1px solid @light-grey;
 	padding: @button-padding;
 	margin: @gutter/2 0;
 	outline: 0;
 	font-size: 0.9rem;
-	.transition(~"background-color @{transition-fast}, border @{transition-fast}");
-}
+	.button-theme(@dark, @light-grey);
 
-button:hover {
-	background-color: lighten(@light-grey, 10%);
-	border-color: lighten(@light-grey, 5%);
+	&.primary { .button-theme(@white, @primary) }
+	&.secondary { .button-theme(@white, @secondary) }
+	&.tertiary { .button-theme(@white, @tertiary) }
 }
 
 .flex-container {

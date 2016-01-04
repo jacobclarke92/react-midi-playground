@@ -1,15 +1,17 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import autobind from 'autobind-decorator'
+import classnames from 'classnames'
 import _ from 'lodash'
 
 import Url from 'components/Url'
 import Slider from 'components/Slider'
 
 import * as Links from 'constants/links'
-import { getLastMessageString } from 'util/midiUtils'
-import { setCC, resetValues, getTotalNotesDownForDevices, getCCValuesForDevice } from 'reducers/midi-values'
+import { SLIDER, BUTTON } from 'constants/mapping-types'
 import { getLastMessageString } from 'utils/midiUtils'
+import { enableMapping, disableMapping } from 'reducers/midi-status'
+import { setCC, resetValues, getTotalNotesDownForDevices, getCCValuesForDevice, getCCValue } from 'reducers/midi-values'
 import { deviceSelected, deviceDeselected, setSelectedDevices } from 'reducers/selected-midi-devices'
 
 const testCCvalues = [7, 16, 17, 18, 10, 19, 80, 81, 20];
@@ -25,8 +27,11 @@ const testCCvalues = [7, 16, 17, 18, 10, 19, 80, 81, 20];
 		selectedDevices,
 		totalNotesDown,
 		ccValues,
+		mappings: state.midiMappings,
 		midiEnabled: state.midiStatus.enabled,
+		mappingEnabled: state.midiStatus.mapping,
 		lastMidiMessage: state.lastMidiMessage,
+		getCCValue: mapping => getCCValue(state, mapping),
 	}
 })
 export default class App extends Component {
@@ -44,9 +49,9 @@ export default class App extends Component {
 	}
 
 	render() {
-		const { dispatch, ccValues, midiEnabled, devices, selectedDevices, totalNotesDown, lastMidiMessage } = this.props;
+		const { dispatch, ccValues, midiEnabled, mappingEnabled, devices, mappings, selectedDevices, totalNotesDown, lastMidiMessage } = this.props;
 		return (
-			<div>
+			<main className={classnames({'mapping': mappingEnabled})}>
 				<h1>React MIDI Interface</h1>
 				<div className="status">
 
@@ -90,14 +95,22 @@ export default class App extends Component {
 					
 					{/* Makeshift control panel */}
 					<fieldset className="flex-1">
-						<legend>Some control panel</legend>
+						<legend>Some control panel <button className={mappingEnabled ? 'secondary' : 'primary'} onClick={event => dispatch(mappingEnabled ? disableMapping() : enableMapping())}>Map</button></legend>
+						{mappings.map((mapping, i) => 
+							mapping.type === SLIDER ? (
+								<Slider key={i} value={this.props.getCCValue(mapping)} />
+							) : mapping.type == BUTTON ? (
+								<button />
+							) : null
+						)}
+						<br />
 						{testCCvalues.map((cc, i) => 
 							<Slider key={i} value={ccValues[cc] || 0} onChange={sliderValue => this.setSliderValue(cc, sliderValue)} />
 						)}
 					</fieldset>
 
 				</div>
-			</div>
+			</main>
 		);
 	}
 

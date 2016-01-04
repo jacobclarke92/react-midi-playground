@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 
+@connect(state => ({ mappingEnabled: state.midiStatus.mapping }))
 export default class Slider extends Component {
 
 	static defaultProps = {
@@ -8,6 +10,7 @@ export default class Slider extends Component {
 		value: 0,
 		step: 1,
 		onChange: null,
+		mapped: false,
 	}
 
 	onChange(event) {
@@ -15,8 +18,9 @@ export default class Slider extends Component {
 	}
 
 	render() {
+		const { mappingEnabled, mapped, onChange, ...rest } = this.props;
 		return (
-			<input type="range" min={this.props.min} max={this.props.max} value={this.props.value} step={this.props.step} onInput={this.onChange.bind(this)} />
+			<input type="range" disabled={mappingEnabled} {...rest} onInput={this.onChange.bind(this)} />
 		);
 	}
 }

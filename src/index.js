@@ -14,7 +14,8 @@ import { updateLastMidiMessage } from 'reducers/last-midi-message'
 
 // define what parts of store will be saved to localStorage
 const createPersistentStore = compose(persistState([
-	'selectedMidiDevices'
+	'selectedMidiDevices',
+	'midiMappings',
 ]))(createStore);
 
 // create store

@@ -19,9 +19,5 @@ export default function midi(state = initialState, action = {}) {
 }
 
 // actions
-export function midiEnabled() {
-	return { type: MIDI_ENABLED }
-}
-export function midiDisabled() {
-	return { type: MIDI_DISABLED }
-}
+export const midiEnabled = () => ({ type: MIDI_ENABLED });
+export const midiDisabled = () => ({ type: MIDI_DISABLED });

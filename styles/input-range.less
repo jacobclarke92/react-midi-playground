@@ -3,6 +3,7 @@
 @slider-thumb-size: 15px;
 @slider-track-size: 3px;
 @slider-track-color: @light-grey;
+@slider-disabled-thumb-opacity: 0.3;
 
 
 .track() {
@@ -25,6 +26,8 @@ input[type=range] {
 	-webkit-appearance: none;
 	width: 100%;
 	margin: 6px 0;
+	
+	.transition(border-color @transition-slow);
 
 	&:focus {
 		outline: none;

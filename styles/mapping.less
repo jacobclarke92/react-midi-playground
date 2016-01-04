@@ -1,13 +1,42 @@
 main.mapping {
 
-	input[type=range]::-webkit-slider-thumb {
-		border-color: @secondary;
+	input[type=range] {
+
+		box-sizing: border-box;
+		padding: 4px 0;
+		margin: 3px 0 -3px 0;
+		border-radius: @slider-thumb-size/2;
+		border: 2px dotted @mapping-color;
+		cursor: pointer;
+		.animate-mapping-border-color();
+		.translate(0, 2px);
+
+		&:hover {
+			background-color: fade(@mapping-color, 25%);
+		}
+
+		&::-webkit-slider-thumb { 
+			opacity: @slider-disabled-thumb-opacity; 
+			.animate-mapping-border-color();
+			.translate(-2px, 0px);
+		}
+		&::-moz-range-thumb { 
+			opacity: @slider-disabled-thumb-opacity;
+			.animate-mapping-border-color();
+		}
+		&::-ms-thumb {
+			opacity: @slider-disabled-thumb-opacity;
+			.animate-mapping-border-color();
+		}
+
+		&.primed {
+			.animate-primed-background-color();
+		}
 	}
-	input[type=range]::-moz-range-thumb {
-		border-color: @secondary;
-	}
-	input[type=range]::-ms-thumb {
-		border-color: @secondary;
+
+	button.mapping {
+		.animate-mapping-background-color();
 	}
 
 }
+

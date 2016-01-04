@@ -95,17 +95,17 @@ export default class App extends Component {
 					
 					{/* Makeshift control panel */}
 					<fieldset className="flex-1">
-						<legend>Some control panel <button className={mappingEnabled ? 'secondary' : 'primary'} onClick={event => dispatch(mappingEnabled ? disableMapping() : enableMapping())}>Map</button></legend>
+						<legend>Some control panel <button className={mappingEnabled ? 'mapping' : 'primary'} onClick={event => dispatch(mappingEnabled ? disableMapping() : enableMapping())}>Map</button></legend>
 						{mappings.map((mapping, i) => 
 							mapping.type === SLIDER ? (
-								<Slider key={i} value={this.props.getCCValue(mapping)} />
+								<Slider key={i} value={this.props.getCCValue(mapping)} mapping={mapping} />
 							) : mapping.type == BUTTON ? (
 								<button />
 							) : null
 						)}
 						<br />
 						{testCCvalues.map((cc, i) => 
-							<Slider key={i} value={ccValues[cc] || 0} onChange={sliderValue => this.setSliderValue(cc, sliderValue)} />
+							<Slider key={i} alias={'slider'+i} value={ccValues[cc] || 0} onChange={sliderValue => this.setSliderValue(cc, sliderValue)} />
 						)}
 					</fieldset>
 

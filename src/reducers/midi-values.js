@@ -125,3 +125,8 @@ export function getCCValuesForDevice(globalState, deviceId) {
 	});
 	return values;
 }
+
+export function getCCValue(globalState, mapping) {
+	const value = globalState.midiValues.getIn([mapping.deviceId, mapping.channel, mapping.key]);
+	return value || 0;
+}

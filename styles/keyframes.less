@@ -1,0 +1,38 @@
+@keyframes mapping-border-color {
+    from { border-color: @mapping-color; }
+    to { border-color: lighten(@mapping-color, 15%); }
+}
+@-webkit-keyframes mapping-border-color {
+    from { border-color: @mapping-color; }
+    to { border-color: lighten(@mapping-color, 15%); }
+}
+.animate-mapping-border-color {
+    border-color: @mapping-color;
+    .animation(mapping-border-color 1s ease-in-out 0s alternate infinite);
+}
+
+@keyframes mapping-background-color {
+    from { background-color: @mapping-color; }
+    to { background-color: lighten(@mapping-color, 15%); }
+}
+@-webkit-keyframes mapping-background-color {
+    from { background-color: @mapping-color; }
+    to { background-color: lighten(@mapping-color, 15%); }
+}
+.animate-mapping-background-color {
+    background-color: @mapping-color;
+    .animation(mapping-background-color 1s ease-in-out 0s alternate infinite);
+}
+
+@keyframes primed-background-color {
+    from { background-color: @primed-color; }
+    to { background-color: lighten(@primed-color, 15%); }
+}
+@-webkit-keyframes primed-background-color {
+    from { background-color: @primed-color; }
+    to { background-color: lighten(@primed-color, 15%); }
+}
+.animate-primed-background-color {
+    background-color: @primed-color;
+    .animation(primed-background-color 1s ease-in-out 0s alternate infinite);
+}

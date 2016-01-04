@@ -1,7 +1,15 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import classnames from 'classnames'
+import titleCase from 'to-title-case'
 
-@connect(state => ({ mappingEnabled: state.midiStatus.mapping }))
+import { setCurrentMappingAlias, clearCurrentMappingAlias } from 'reducers/midi-status'
+
+@connect((state, props) => ({
+	mappingEnabled: state.midiStatus.mapping,
+	isMappingTarget: state.midiStatus.currentMappingAlias === props.alias,
+	currentMappingAlias: state.midiStatus.currentMappingAlias,
+}))
 export default class Slider extends Component {
 
 	static defaultProps = {
@@ -11,16 +19,32 @@ export default class Slider extends Component {
 		step: 1,
 		onChange: null,
 		mapped: false,
+		alias: null,
 	}
 
-	onChange(event) {
+	handleChange(event) {
 		this.props.onChange(event.target.value);
 	}
 
+	handleClick(event) {
+		const { dispatch, alias, mappingEnabled, isMappingTarget } = this.props;
+		if(mappingEnabled) {
+			dispatch(isMappingTarget ? clearCurrentMappingAlias() : setCurrentMappingAlias(alias));
+		}
+	}
+
 	render() {
-		const { mappingEnabled, mapped, onChange, ...rest } = this.props;
+		const { mappingEnabled, isMappingTarget, mapped, onChange, alias, ...rest } = this.props;
 		return (
-			<input type="range" disabled={mappingEnabled} {...rest} onInput={this.onChange.bind(this)} />
+			<label for={alias}>
+				{alias && titleCase(alias)}
+				<input type="range" id={alias}
+					{...rest} 
+					className={classnames({'mapping': mappingEnabled, 'primed': isMappingTarget})} 
+					readOnly={mappingEnabled} 
+					onInput={::this.handleChange} 
+					onClick={::this.handleClick} />
+			</label>
 		);
 	}
 }

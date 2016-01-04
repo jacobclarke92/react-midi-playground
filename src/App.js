@@ -11,8 +11,8 @@ import Slider from 'components/Slider'
 import * as Links from 'constants/links'
 import { SLIDER, BUTTON } from 'constants/mapping-types'
 import { getLastMessageString } from 'utils/midiUtils'
-import { enableMapping, disableMapping } from 'reducers/midi-status'
-import { resetMappings } from 'reducers/midi-mappings'
+import { enableMapping, disableMapping, clearCurrentMappingAlias } from 'reducers/midi-status'
+import { resetMappings, deleteMapping } from 'reducers/midi-mappings'
 import { setCC, resetValues, getTotalNotesDownForDevices, getCCValuesForDevice, getCCValue } from 'reducers/midi-values'
 import { deviceSelected, deviceDeselected, setSelectedDevices } from 'reducers/selected-midi-devices'
 
@@ -32,6 +32,7 @@ const testCCvalues = [7, 16, 17, 18, 10, 19, 80, 81, 20];
 		mappings: state.midiMappings,
 		midiEnabled: state.midiStatus.enabled,
 		mappingEnabled: state.midiStatus.mapping,
+		currentMappingAlias: state.midiStatus.currentMappingAlias,
 		lastMidiMessage: state.lastMidiMessage,
 		getCCValue: mapping => getCCValue(state, mapping),
 	}
@@ -42,11 +43,20 @@ export default class App extends Component {
 		window.addEventListener('keyup', this.handleKeyUp);
 	}
 
+	componentWillUnmount() {
+		window.removeEventListener('keyup', this.handleKeyUp);
+	}
+
 	@autobind
 	handleKeyUp(event) {
+		console.log(keycode(event));
 		switch(keycode(event)) {
 			case 'm':
 				this.toggleMapping()
+			case 'backspace':
+				this.handleDeleteCurrentMapping()
+			case 'delete':
+				this.handleDeleteCurrentMapping()
 		}
 	}
 
@@ -60,6 +70,13 @@ export default class App extends Component {
 		this.props.dispatch(this.props.mappingEnabled ? disableMapping() : enableMapping());
 	}
 
+	handleDeleteCurrentMapping() {
+		const { dispatch, mappingEnabled, currentMappingAlias } = this.props;
+		if(!mappingEnabled || !currentMappingAlias) return;
+		dispatch(deleteMapping(currentMappingAlias));
+		dispatch(clearCurrentMappingAlias());
+	}
+
 	setSliderValue(key, velocity) {
 		const { dispatch, lastMidiMessage, selectedDevices } = this.props;
 		const id = ('id' in lastMidiMessage) ? lastMidiMessage.id : selectedDevices.length ? selectedDevices[0] : null;
@@ -68,6 +85,7 @@ export default class App extends Component {
 
 	render() {
 		const { dispatch, ccValues, midiEnabled, mappingEnabled, devices, mappings, selectedDevices, totalNotesDown, lastMidiMessage } = this.props;
+		console.log('mappings', mappings);
 		return (
 			<main className={classnames({'mapping': mappingEnabled})}>
 				<h1>React MIDI Interface</h1>

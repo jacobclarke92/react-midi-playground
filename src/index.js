@@ -70,13 +70,27 @@ function handleMidiMessage(device, message) {
 		// is an element primed for mapping?
 		if(currentMappingAlias !== null) {
 			const obj = getMidiMessageObject(message);
-			const mapping = {
-				deviceId: state.lastMidiMessage.deviceId || null,
-				channel: obj.channel,
-				key: obj.key,
-			};
-			store.dispatch(addMapping(mapping, currentMappingAlias));
-			store.dispatch(clearCurrentMappingAlias());
+			const deviceId = state.lastMidiMessage.deviceId || null;
+			let mappingInUse = false;
+			let duplicateMapping = false;
+			const mappingIds = state.midiMappings.map(mm => {
+				if(mm.id === currentMappingAlias) duplicateMapping = true;
+				if(mm.deviceId === deviceId && mm.channel === obj.channel && mm.key === obj.key) {
+					console.warn('Mapping being used elsewhere for ', mm.id);
+					mappingInUse = true;
+				}
+			});
+			if(!duplicateMapping) {
+				const mapping = {
+					deviceId,
+					channel: obj.channel,
+					key: obj.key,
+				};
+				store.dispatch(addMapping(mapping, currentMappingAlias));
+				store.dispatch(clearCurrentMappingAlias());
+			}else{
+				console.warn('Duplicate mapping - doing nothing')
+			}
 		}
 	}else{
 		// otherwise dispatch midi message as usual

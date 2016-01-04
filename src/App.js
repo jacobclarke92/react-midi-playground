@@ -13,7 +13,7 @@ import { deviceSelected, deviceDeselected, setSelectedDevices } from 'reducers/s
 
 // connect redux store to App with custom variables
 @connect(state => {
-	const devices = state.midiDevices.filter(device => device.type == 'input');
+	const devices = state.midiDevices.filter(device => device.type == 'input').sort((a,b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
 	const selectedDevices = state.selectedMidiDevices;
 	const notesDown = selectedDevices.length ? getTotalNotesDownForDevices(state, selectedDevices) : 0;
 	return {
@@ -68,7 +68,7 @@ export default class App extends Component {
 									MIDI is not supported natively on your browser.<br />
 									Download <Url href={Links.jazzPlugin}>Jazz Plugin</Url> for all major browsers.
 								</p>
-							) : (!devices || !devices.length)  ? (
+							) : (!devices || !devices.length) ? (
 								<p>
 									No MIDI devices found.<br />
 									If you have no USB MIDI interfaces try TouchOSC for <Url href={Links.touchOSC_iOS}>iOS</Url> and <Url href={Links.touchOSC_android}>Android</Url>,<br />
@@ -88,7 +88,7 @@ export default class App extends Component {
 							<p>
 								Last MIDI message: {getLastMessageString(lastMidiMessage)}<br />
 								Total notes down: {notesDown}<br />
-								<button onClick={event => dispatch(resetValues())}>Reset state for all devices</button>
+								<button onClick={event => dispatch(resetValues())}>Reset local state for all MIDI devices</button>
 							</p>
 						</fieldset>
 					)}

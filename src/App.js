@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import autobind from 'autobind-decorator'
 import _ from 'lodash'
 
+import Url from 'components/Url'
 import Slider from 'components/Slider'
 
 import * as Midi from 'api/Midi'

@@ -14,6 +14,10 @@
     "build": "npm run build:js & npm run build:less",
     "build:js": "watch-less -d styles -r dist -e .css -c -o",
     "build:less": "lessc styles/styles.less > dist/styles.css",
+    
+    "watch:deploy": "npm run watch:deploy:js & npm run watch:deploy:less",
+    "watch:deploy:js": "webpack --watch -p -v",
+    "watch:deploy:less": "watch \"npm run deploy:less\" \"styles\"",
 
     "deploy": "npm run deploy:js & npm run deploy:less",
     "deploy:js": "webpack -p -v",

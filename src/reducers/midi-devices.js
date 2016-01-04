@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { renderCycleMS } from 'constants/general'
+import { renderCycleMS, deviceActiveStatusTimeoutMS } from 'constants/general'
 
 // action types
 const DEVICE_CONNECTED = 'DEVICE_CONNECTED'
@@ -7,9 +7,6 @@ const DEVICE_DISCONNECTED = 'DEVICE_DISCONNECTED'
 const DEVICES_UPDATED = 'DEVICES_UPDATED'
 const DEVICE_ACTIVE = 'DEVICE_ACTIVE'
 const DEVICE_INACTIVE = 'DEVICE_INACTIVE'
-
-// constants
-const deviceActiveStatusTimeoutMS = 50;
 
 // initial state
 const initialState = [];

@@ -7,9 +7,8 @@ import { NOTE_ON, NOTE_OFF, CC_CHANGE, AFTERTOUCH_CHANGE, PITCHBEND_CHANGE } fro
 const UNKNOWN_COMMAND = 'UNKNOWN_COMMAND'
 const RESET_VALUES = 'RESET_VALUES'
 
-// structure of device object 
-/*****
-device = {
+/* structure of device object /*
+{
 	pitchbend: 0-127,
 	aftertouch: 0-127,
 	CCs: [
@@ -27,7 +26,7 @@ device = {
 		]
 	],	
 }
-*****/
+*/
 
 // initial state
 const initialState = new Map();

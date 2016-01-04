@@ -4,9 +4,7 @@ const MIDI_ENABLED = 'MIDI_ENABLED'
 const MIDI_DISABLED = 'MIDI_DISABLED'
 
 // initial state
-const initialState = {
-	enabled: false,
-};
+const initialState = { enabled: false }
 
 // reducer
 export default function midi(state = initialState, action = {}) {

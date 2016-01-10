@@ -49,12 +49,12 @@ Midi.requestAccess(
 );
 
 const params = [];
-params.push({group: 'BG_color', alias: 'bg_R', max: 255, value: 1});
-params.push({group: 'BG_color', alias: 'bg_G', max: 255, value: 51});
-params.push({group: 'BG_color', alias: 'bg_B', max: 255, value: 101});
 params.push({group: 'border_color', alias: 'border_R', max: 255, value: 151});
 params.push({group: 'border_color', alias: 'border_G', max: 255, value: 201});
 params.push({group: 'border_color', alias: 'border_B', max: 255, value: 251});
+params.push({group: 'BG_color', alias: 'bg_R', max: 255, value: 1});
+params.push({group: 'BG_color', alias: 'bg_G', max: 255, value: 51});
+params.push({group: 'BG_color', alias: 'bg_B', max: 255, value: 101});
 store.dispatch(addParams(params));
 
 // function called on midi state change, typically on device [dis]connect
@@ -82,15 +82,17 @@ function handleMidiMessage(device, message) {
 			const obj = getMidiMessageObject(message);
 			const deviceId = state.lastMidiMessage.deviceId || null;
 			let mappingInUse = false;
-			let duplicateMapping = false;
+			let overwritingMapping = false;
 			const mappingIds = state.midiMappings.map(mm => {
-				if(mm.id === currentMappingAlias) duplicateMapping = true;
+				if(mm.id === currentMappingAlias) overwritingMapping = true;
 				if(mm.deviceId === deviceId && mm.channel === obj.channel && mm.key === obj.key) {
-					console.warn('Mapping being used elsewhere for ', mm.id);
 					mappingInUse = true;
 				}
 			});
-			if(!duplicateMapping) {
+			if(!mappingInUse) {
+				if(overwritingMapping) {
+					console.log('Overwriting mapping');
+				}
 				const mapping = {
 					alias: currentMappingAlias,
 					deviceId,
@@ -99,8 +101,8 @@ function handleMidiMessage(device, message) {
 				};
 				store.dispatch(addMapping(mapping, currentMappingAlias));
 				store.dispatch(clearCurrentMappingAlias());
-			}else{
-				console.warn('Duplicate mapping - doing nothing');
+			}else if(!overwritingMapping) {
+				console.warn('That midi key is mapped to something else! TODO: prompt replace or use for both');
 			}
 		}
 	}else{

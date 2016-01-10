@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { renderCycleMS, deviceActiveStatusTimeoutMS } from 'constants/general'
+import { fps60, deviceActiveStatusTimeoutMS } from 'constants/general'
 
 // action types
 const DEVICE_CONNECTED = 'DEVICE_CONNECTED'
@@ -80,4 +80,4 @@ export const deviceActive = _.throttle((device, store) => {
 		type: DEVICE_ACTIVE,
 		device,
 	}
-}, renderCycleMS);
+}, fps60);

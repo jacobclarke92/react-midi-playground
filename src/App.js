@@ -11,6 +11,7 @@ import Slider from 'components/Slider'
 import TestBox from 'components/TestBox'
 
 import * as Links from 'constants/links'
+import { fps60, fps30 } from 'constants/general'
 import { SLIDER, BUTTON } from 'constants/mapping-types'
 import { getLastMessageString } from 'utils/midiUtils'
 import { updateParamValue } from 'reducers/params'
@@ -44,6 +45,12 @@ import { deviceSelected, deviceDeselected, setSelectedDevices } from 'reducers/s
 	}
 })
 export default class App extends Component {
+
+	constructor(props) {
+		super(props);
+		// questionable i know
+		this.render = _.throttle(this.render, fps60);
+	}
 
 	componentWillMount() {
 		window.addEventListener('keyup', this.handleKeyUp);

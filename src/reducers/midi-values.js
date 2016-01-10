@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import { Map } from 'immutable'
+import { fps60 } from 'constants/general'
 import { getMidiMessageObject } from 'utils/midiUtils'
 import { NOTE_ON, NOTE_OFF, CC_CHANGE, AFTERTOUCH_CHANGE, PITCHBEND_CHANGE } from 'constants/midi-commands'
 import { updateParamValue } from 'reducers/params'
@@ -60,14 +61,14 @@ export const setCC = (device, message) => ({ type: CC_CHANGE, device, message })
 
 const lastTimes = {};
 const currentTime = () => new Date().getTime();
-export function midiMessageReceived(device, _message, store, state) {
+export const midiMessageReceived = _.throttle((device, _message, store, state) => {
 
+	const message = getMidiMessageObject(_message);
 	// to prevent excess updates to redux store we filter out messages received from same key (cc or note)
 	// throttling the function won't work because we don't want to ignore midi messages from different sources
 	// therefore this will have to be optimized as it still chokes when two cc values are moved simultaneously
-	const message = getMidiMessageObject(_message);
 	const lastTime = lastTimes[device.id+'_'+message.channel+'_'+message.key];
-	if(lastTime && currentTime() - lastTime < 1000/60) return { type: UNKNOWN_COMMAND };
+	if(lastTime && currentTime() - lastTime < fps60) return { type: UNKNOWN_COMMAND };
 	lastTimes[device.id+'_'+message.channel+'_'+message.key] = currentTime();
 
 	state.midiMappings.map(mapping => {
@@ -91,7 +92,7 @@ export function midiMessageReceived(device, _message, store, state) {
 		default: 
 			return { type: UNKNOWN_COMMAND }
 	}
-}
+}, fps60);
 
 // queries
 export function isNoteDown(globalState, deviceId, channel, key) {

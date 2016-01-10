@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { renderCycleMS } from 'constants/general'
+import { fps60 } from 'constants/general'
 import { getMidiMessageObject } from 'utils/midiUtils'
 
 // action types
@@ -29,4 +29,4 @@ export const updateLastMidiMessage = _.throttle((device, message) => {
 		message: getMidiMessageObject(message),
 		device,
 	}
-}, renderCycleMS);
+}, fps60);

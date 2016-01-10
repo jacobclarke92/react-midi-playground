@@ -2,6 +2,7 @@ import _ from 'lodash'
 import { Map } from 'immutable'
 import { getMidiMessageObject } from 'utils/midiUtils'
 import { NOTE_ON, NOTE_OFF, CC_CHANGE, AFTERTOUCH_CHANGE, PITCHBEND_CHANGE } from 'constants/midi-commands'
+import { updateParamValue } from 'reducers/params'
 
 // other action types
 const UNKNOWN_COMMAND = 'UNKNOWN_COMMAND'
@@ -57,26 +58,25 @@ export const resetValues = () => ({ type: RESET_VALUES });
 
 export const setCC = (device, message) => ({ type: CC_CHANGE, device, message });
 
-let lastTime = null
+const lastTimes = {};
 const currentTime = () => new Date().getTime();
-const updateLastTime = () => { lastTime = currentTime() };
-updateLastTime();
-
-export function midiMessageReceived(device, _message, store) {
+export function midiMessageReceived(device, _message, store, state) {
 
 	// to prevent excess updates to redux store we filter out messages received from same key (cc or note)
 	// throttling the function won't work because we don't want to ignore midi messages from different sources
 	// therefore this will have to be optimized as it still chokes when two cc values are moved simultaneously
 	const message = getMidiMessageObject(_message);
-	if(currentTime() - lastTime < 1000/60) {
-		const lastMidiMessage = store.getState().lastMidiMessage;
-		if(lastMidiMessage.deviceId && lastMidiMessage.deviceId === device.id && lastMidiMessage.key === message.key) {
-			updateLastTime()
-			return { type: UNKNOWN_COMMAND };	
+	const lastTime = lastTimes[device.id+'_'+message.channel+'_'+message.key];
+	if(lastTime && currentTime() - lastTime < 1000/60) return { type: UNKNOWN_COMMAND };
+	lastTimes[device.id+'_'+message.channel+'_'+message.key] = currentTime();
+
+	state.midiMappings.map(mapping => {
+		if(mapping.deviceId === device.id && mapping.channel === message.channel && mapping.key === message.key) {
+			// A mapping exists for this midi message so update its value
+			store.dispatch(updateParamValue(mapping.alias, message.velocity/127));
 		}
-	}
-	updateLastTime();
-	
+	});
+
 	switch (message.command) {
 		case 9: 
 			return { device, message, type: message.velocity === 0 ? NOTE_OFF : NOTE_ON }

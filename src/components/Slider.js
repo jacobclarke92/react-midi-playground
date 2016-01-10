@@ -42,7 +42,7 @@ export default class Slider extends Component {
 					{...rest} 
 					className={classnames({'mapping': mappingEnabled, 'primed': isMappingTarget})} 
 					readOnly={mappingEnabled} 
-					onInput={::this.handleChange} 
+					onChange={::this.handleChange} 
 					onClick={::this.handleClick} />
 			</label>
 		);

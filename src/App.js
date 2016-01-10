@@ -2,21 +2,22 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import autobind from 'autobind-decorator'
 import classnames from 'classnames'
+import titleCase from 'to-title-case'
 import keycode from 'keycode'
 import _ from 'lodash'
 
 import Url from 'components/Url'
 import Slider from 'components/Slider'
+import TestBox from 'components/TestBox'
 
 import * as Links from 'constants/links'
 import { SLIDER, BUTTON } from 'constants/mapping-types'
 import { getLastMessageString } from 'utils/midiUtils'
+import { updateParamValue } from 'reducers/params'
 import { enableMapping, disableMapping, clearCurrentMappingAlias } from 'reducers/midi-status'
 import { resetMappings, deleteMapping } from 'reducers/midi-mappings'
 import { setCC, resetValues, getTotalNotesDownForDevices, getCCValuesForDevice, getCCValue } from 'reducers/midi-values'
 import { deviceSelected, deviceDeselected, setSelectedDevices } from 'reducers/selected-midi-devices'
-
-const testCCvalues = [7, 16, 17, 18, 10, 19, 80, 81, 20];
 
 // connect redux store to App with custom variables
 @connect(state => {
@@ -24,12 +25,17 @@ const testCCvalues = [7, 16, 17, 18, 10, 19, 80, 81, 20];
 	const selectedDevices = state.selectedMidiDevices;
 	const totalNotesDown = selectedDevices.length ? getTotalNotesDownForDevices(state, selectedDevices) : 0;
 	const ccValues = selectedDevices.map(deviceId => getCCValuesForDevice(state, deviceId)).reduce((value, deviceKeys) => value.concat(deviceKeys), []);
+	const paramGroups = {};
+	state.params.map(param => {
+		if(!paramGroups[param.group]) paramGroups[param.group] = [];
+		paramGroups[param.group].push(param);
+	})
 	return {
 		devices,
 		selectedDevices,
 		totalNotesDown,
 		ccValues,
-		mappings: state.midiMappings,
+		paramGroups,
 		midiEnabled: state.midiStatus.enabled,
 		mappingEnabled: state.midiStatus.mapping,
 		currentMappingAlias: state.midiStatus.currentMappingAlias,
@@ -84,8 +90,7 @@ export default class App extends Component {
 	}
 
 	render() {
-		const { dispatch, ccValues, midiEnabled, mappingEnabled, devices, mappings, selectedDevices, totalNotesDown, lastMidiMessage } = this.props;
-		console.log('mappings', mappings);
+		const { dispatch, ccValues, midiEnabled, mappingEnabled, devices, paramGroups, selectedDevices, totalNotesDown, lastMidiMessage } = this.props;
 		return (
 			<main className={classnames({'mapping': mappingEnabled})}>
 				<h1>React MIDI Interface</h1>
@@ -130,21 +135,19 @@ export default class App extends Component {
 						</fieldset>
 					)}
 					
-					{/* Makeshift control panel */}
-					<fieldset className="flex-1">
-						<legend>Some control panel <button className={mappingEnabled ? 'mapping' : 'primary'} onClick={event => this.toggleMapping()}>Map</button></legend>
-						{mappings.map((mapping, i) => 
-							mapping.type === SLIDER ? (
-								<Slider key={i} value={this.props.getCCValue(mapping)} mapping={mapping} />
-							) : mapping.type == BUTTON ? (
-								<button />
-							) : null
-						)}
-						<br />
-						{testCCvalues.map((cc, i) => 
-							<Slider key={i} alias={'slider'+i} value={ccValues[cc] || 0} onChange={sliderValue => this.setSliderValue(cc, sliderValue)} />
-						)}
-					</fieldset>
+					{Object.keys(paramGroups).map((key, i) => 
+						<fieldset className="flex-1" key={i}>
+							<legend>{titleCase(key)} <button className={mappingEnabled ? 'mapping' : 'primary'} onClick={event => this.toggleMapping()}>Map</button></legend>
+							{paramGroups[key].map((param, n) => {
+								const { type, ...rest } = param;
+								if(param.type === SLIDER) return (<Slider key={n} {...rest} onChange={val => dispatch(updateParamValue(param.alias, val/param.max))} />);
+								if(param.type === BUTTON) return (<button key={n} {...rest} onChange={val => console.log(val)} />);
+								return null;
+							})}
+						</fieldset>
+					)}
+
+					<TestBox {...paramGroups} />
 
 				</div>
 			</main>

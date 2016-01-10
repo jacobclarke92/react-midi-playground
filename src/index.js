@@ -14,6 +14,7 @@ import { deviceConnected, deviceDisconnected, devicesUpdated, deviceActive, setB
 import { midiMessageReceived } from 'reducers/midi-values'
 import { addMapping } from 'reducers/midi-mappings'
 import { updateLastMidiMessage } from 'reducers/last-midi-message'
+import { addParams } from 'reducers/params'
 
 // define what parts of store will be saved to localStorage
 const createPersistentStore = compose(persistState([
@@ -46,6 +47,15 @@ Midi.requestAccess(
 		store.dispatch(midiDisabled());
 	}
 );
+
+const params = [];
+params.push({group: 'BG_color', alias: 'bg_R', max: 255, value: 1});
+params.push({group: 'BG_color', alias: 'bg_G', max: 255, value: 51});
+params.push({group: 'BG_color', alias: 'bg_B', max: 255, value: 101});
+params.push({group: 'border_color', alias: 'border_R', max: 255, value: 151});
+params.push({group: 'border_color', alias: 'border_G', max: 255, value: 201});
+params.push({group: 'border_color', alias: 'border_B', max: 255, value: 251});
+store.dispatch(addParams(params));
 
 // function called on midi state change, typically on device [dis]connect
 function handleMidiStateChange(event) {
@@ -82,6 +92,7 @@ function handleMidiMessage(device, message) {
 			});
 			if(!duplicateMapping) {
 				const mapping = {
+					alias: currentMappingAlias,
 					deviceId,
 					channel: obj.channel,
 					key: obj.key,
@@ -89,12 +100,12 @@ function handleMidiMessage(device, message) {
 				store.dispatch(addMapping(mapping, currentMappingAlias));
 				store.dispatch(clearCurrentMappingAlias());
 			}else{
-				console.warn('Duplicate mapping - doing nothing')
+				console.warn('Duplicate mapping - doing nothing');
 			}
 		}
 	}else{
 		// otherwise dispatch midi message as usual
-		store.dispatch(midiMessageReceived(device, message, store));
+		store.dispatch(midiMessageReceived(device, message, store, state));
 	}
 }
 

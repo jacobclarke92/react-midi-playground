@@ -20,7 +20,7 @@ export default class Slider extends Component {
 		onChange: null,
 		mapped: false,
 		alias: null,
-	}
+	};
 
 	handleChange(event) {
 		this.props.onChange(event.target.value);

@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
-import deepEquals from 'deep-equal'
 
 export default class TestBox extends Component {
 
 	static defaultProps = {
 		BG_color: [{alias: 'bg_R', value: 0}, {alias: 'bg_G', value: 50}, {alias: 'bg_B', value: 100}],
 		border_color: [{alias: 'border_R', value: 150}, {alias: 'border_G', value: 200}, {alias: 'border_B', value: 250}],
-	}
+	};
 
 	render() {
 		let { BG_color, border_color } = this.props;

@@ -29,8 +29,8 @@ import { deviceSelected, deviceDeselected, setSelectedDevices } from 'reducers/s
 	const paramGroups = {};
 	state.params.map(param => {
 		if(!paramGroups[param.group]) paramGroups[param.group] = [];
-		paramGroups[param.group].push(param);
-	})
+		paramGroups[param.group].push({...param});
+	});
 	return {
 		devices,
 		selectedDevices,
@@ -49,7 +49,7 @@ export default class App extends Component {
 	constructor(props) {
 		super(props);
 		// questionable i know
-		this.render = _.throttle(this.render, fps60);
+		// this.render = _.throttle(this.render, fps60);
 	}
 
 	componentWillMount() {
@@ -62,7 +62,7 @@ export default class App extends Component {
 
 	@autobind
 	handleKeyUp(event) {
-		console.log(keycode(event));
+		// console.log(keycode(event));
 		switch(keycode(event)) {
 			case 'm':
 				this.toggleMapping()
@@ -97,7 +97,7 @@ export default class App extends Component {
 	}
 
 	render() {
-		const { dispatch, ccValues, midiEnabled, mappingEnabled, devices, paramGroups, selectedDevices, totalNotesDown, lastMidiMessage } = this.props;
+		// console.log(window.lastAction + ' ' + (new Date().getTime() - window.lastUpdated) + 'ms');
 		const { dispatch, ccValues, midiEnabled, mappingEnabled, currentMappingAlias, devices, paramGroups, selectedDevices, totalNotesDown, lastMidiMessage } = this.props;
 		return (
 			<main className={classnames({'mapping': mappingEnabled})}>

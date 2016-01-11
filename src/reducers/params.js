@@ -1,3 +1,4 @@
+import { UPDATE_STATE } from 'constants/general'
 import { SLIDER, BUTTON } from 'constants/mapping-types'
 
 // action types
@@ -11,6 +12,8 @@ const initialState = []
 // reducer
 export default function params(state = initialState, action = {}) {
 	switch (action.type) {
+		case UPDATE_STATE:
+			return action.params || state;
 		case PARAM_ADDED: 
 			return [ ...state, action.param ]
 		case PARAMS_ADDED:

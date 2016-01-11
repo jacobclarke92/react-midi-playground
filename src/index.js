@@ -1,20 +1,47 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { compose, createStore } from 'redux'
+import { compose, createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
 import persistState from 'redux-localstorage'
+
+// for debugging
+import thunk from 'redux-thunk'
+import promise from 'redux-promise'
+import createLogger from 'redux-logger'
+import Perf from 'react-addons-perf'
 
 import App from 'App'
 import * as Midi from 'api/Midi'
 import { getMidiMessageObject } from 'utils/midiUtils'
+import { fps60, fps30 } from 'constants/general'
 
 import reducer from 'reducers'
 import { midiEnabled, midiDisabled, clearCurrentMappingAlias } from 'reducers/midi-status'
 import { deviceConnected, deviceDisconnected, devicesUpdated, deviceActive, setBlacklistedDevices } from 'reducers/midi-devices'
-import { midiMessageReceived } from 'reducers/midi-values'
+import { midiMessageReceived, midiMessagesReceived } from 'reducers/midi-values'
 import { addMapping } from 'reducers/midi-mappings'
 import { updateLastMidiMessage } from 'reducers/last-midi-message'
 import { addParams } from 'reducers/params'
+
+/*
+// for debugging redux
+window.lastUpdated = new Date().getTime();
+window.lastAction = null;
+const logger = createLogger({
+	predicate: (getState, action) => {
+		// console.log(action.type);
+		window.lastUpdated = new Date().getTime();
+		window.lastAction = action.type;
+		return false;
+	},
+});
+const createStoreWithMiddleware = applyMiddleware(thunk, promise, logger)(createStore);
+const store = createStoreWithMiddleware(reducer);
+
+Perf.start();
+// setInterval(() => { Perf.printDOM(); Perf.stop(); Perf.start(); }, 5000);
+// setInterval(() => Perf.printWasted(), 5000);
+*/
 
 // define what parts of store will be saved to localStorage
 const createPersistentStore = compose(persistState([
@@ -67,12 +94,12 @@ function handleMidiStateChange(event) {
 	}
 }
 
+let bulkMidiMessagesTimeout = null;
+let bulkMidiMessages = [];
+
 // functioned called on midi message for any device, channel etc.
 function handleMidiMessage(device, message) {
-	// keep midi stats up to date
-	store.dispatch(deviceActive(device, store));
-	store.dispatch(updateLastMidiMessage(device, message));
-
+	
 	// first check if we're currently mapping
 	const state = store.getState();
 	const { mapping, currentMappingAlias } = state.midiStatus;
@@ -107,7 +134,17 @@ function handleMidiMessage(device, message) {
 		}
 	}else{
 		// otherwise dispatch midi message as usual
-		store.dispatch(midiMessageReceived(device, message, store, state));
+		if(bulkMidiMessagesTimeout) {
+			bulkMidiMessages.push({message, device});
+		}else{
+			bulkMidiMessagesTimeout = setTimeout(() => {
+				const time = new Date().getTime();
+				store.dispatch(midiMessagesReceived([...bulkMidiMessages], store, state));
+				// console.log('processed '+bulkMidiMessages.length+' midi messages in '+(new Date().getTime()-time)+'ms');
+				bulkMidiMessages = [];
+				bulkMidiMessagesTimeout = null;
+			}, fps60);
+		}
 	}
 }
 

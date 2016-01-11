@@ -1,12 +1,15 @@
 import _ from 'lodash'
-import { fps60, deviceActiveStatusTimeoutMS } from 'constants/general'
+import { UPDATE_STATE, fps60, fps30, deviceActiveStatusTimeoutMS } from 'constants/general'
 
 // action types
+export const DEVICE_ACTIVE = 'DEVICE_ACTIVE'
+export const DEVICE_INACTIVE = 'DEVICE_INACTIVE'
+export const DEVICES_INACTIVE = 'DEVICES_INACTIVE'
 const DEVICE_CONNECTED = 'DEVICE_CONNECTED'
 const DEVICE_DISCONNECTED = 'DEVICE_DISCONNECTED'
 const DEVICES_UPDATED = 'DEVICES_UPDATED'
-const DEVICE_ACTIVE = 'DEVICE_ACTIVE'
-const DEVICE_INACTIVE = 'DEVICE_INACTIVE'
+const BLACKLISTED_DEVICE_CONNECTED = 'BLACKLISTED_DEVICE_CONNECTED'
+const BLACKLISTED_DEVICE_DISCONNECTED = 'BLACKLISTED_DEVICE_DISCONNECTED'
 
 // initial state
 const initialState = [];
@@ -15,6 +18,8 @@ let blacklistedDevices = [];
 // reducer
 export default function devices(state = initialState, action = {}) {
 	switch (action.type) {
+		case UPDATE_STATE:
+			return action.midiDevices || state;
 		case DEVICE_CONNECTED: 
 			return [...state, action.device]
 		case DEVICE_DISCONNECTED:
@@ -22,13 +27,18 @@ export default function devices(state = initialState, action = {}) {
 		case DEVICES_UPDATED:
 			return action.devices
 		case DEVICE_ACTIVE:
-			return state.filter(device => {
+			return state.map(device => {
 				if(device.id === action.device.id) device.active = true;
 				return device;
 			});
 		case DEVICE_INACTIVE:
-			return state.filter(device => {
+			return state.map(device => {
 				if(device.id === action.device.id) device.active = false;
+				return device;
+			});
+		case DEVICES_INACTIVE:
+			return state.map(device => {
+				if(action.deviceIds.indexOf(device.id) >= 0) device.active = false;
 				return device;
 			});
 		default:
@@ -37,19 +47,15 @@ export default function devices(state = initialState, action = {}) {
 }
 
 // actions
-export function deviceConnected(device) {
-	return {
-		type: _.contains(blacklistedDevices, device.id) ? null : DEVICE_CONNECTED,
-		device,
-	}
-}
+export const deviceConnected = device => ({
+	type: _.contains(blacklistedDevices, device.id) ? BLACKLISTED_DEVICE_CONNECTED : DEVICE_CONNECTED,
+	device,
+});
 
-export function deviceDisconnected(device) {
-	return {
-		type: _.contains(blacklistedDevices, device.id) ? null : DEVICE_DISCONNECTED,
-		device,
-	}
-}
+export const deviceDisconnected = device => ({
+	type: _.contains(blacklistedDevices, device.id) ? BLACKLISTED_DEVICE_DISCONNECTED : DEVICE_DISCONNECTED,
+	device,
+});
 
 export function devicesUpdated(_devices) {
 	const devices = _.clone(_devices).filter(device => !_.contains(blacklistedDevices, device.id));
@@ -65,7 +71,7 @@ export function setBlacklistedDevices(deviceIds) {
 
 // this action is throttled as there's no need to update redux store more than once per render cycle
 const deviceActiveTimeouts = [];
-export const deviceActive = _.throttle((device, store) => {
+export const deviceActive = /*_.throttle(*/(device, store) => {
 	
 	if(deviceActiveTimeouts[device.id]) clearTimeout(deviceActiveTimeouts[device.id]);
 
@@ -80,4 +86,4 @@ export const deviceActive = _.throttle((device, store) => {
 		type: DEVICE_ACTIVE,
 		device,
 	}
-}, fps60);
+}//, fps60);

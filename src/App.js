@@ -98,6 +98,7 @@ export default class App extends Component {
 
 	render() {
 		const { dispatch, ccValues, midiEnabled, mappingEnabled, devices, paramGroups, selectedDevices, totalNotesDown, lastMidiMessage } = this.props;
+		const { dispatch, ccValues, midiEnabled, mappingEnabled, currentMappingAlias, devices, paramGroups, selectedDevices, totalNotesDown, lastMidiMessage } = this.props;
 		return (
 			<main className={classnames({'mapping': mappingEnabled})}>
 				<h1>React MIDI Interface</h1>
@@ -147,8 +148,18 @@ export default class App extends Component {
 							<legend>{titleCase(key)} <button className={mappingEnabled ? 'mapping' : 'primary'} onClick={event => this.toggleMapping()}>Map</button></legend>
 							{paramGroups[key].map((param, n) => {
 								const { type, ...rest } = param;
-								if(param.type === SLIDER) return (<Slider key={n} {...rest} onChange={val => dispatch(updateParamValue(param.alias, val/param.max))} />);
-								if(param.type === BUTTON) return (<button key={n} {...rest} onChange={val => console.log(val)} />);
+								if(param.type === SLIDER) return (
+									<Slider 
+										key={n} 
+										{...rest} 
+										dispatch={dispatch}
+										mappingEnabled={mappingEnabled}
+										currentMappingAlias={currentMappingAlias}
+										onChange={val => dispatch(updateParamValue(param.alias, val/param.max))} />
+								);
+								if(param.type === BUTTON) return (
+									<button key={n} {...rest} onChange={val => console.log(val)} />
+								);
 								return null;
 							})}
 						</fieldset>

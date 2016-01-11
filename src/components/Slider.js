@@ -1,15 +1,9 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 import classnames from 'classnames'
 import titleCase from 'to-title-case'
 
 import { setCurrentMappingAlias, clearCurrentMappingAlias } from 'reducers/midi-status'
 
-@connect((state, props) => ({
-	mappingEnabled: state.midiStatus.mapping,
-	isMappingTarget: state.midiStatus.currentMappingAlias === props.alias,
-	currentMappingAlias: state.midiStatus.currentMappingAlias,
-}))
 export default class Slider extends Component {
 
 	static defaultProps = {
@@ -27,14 +21,16 @@ export default class Slider extends Component {
 	}
 
 	handleClick(event) {
-		const { dispatch, alias, mappingEnabled, isMappingTarget } = this.props;
+		const { dispatch, alias, mappingEnabled, currentMappingAlias } = this.props;
+		const isMappingTarget = alias === currentMappingAlias;
 		if(mappingEnabled) {
 			dispatch(isMappingTarget ? clearCurrentMappingAlias() : setCurrentMappingAlias(alias));
 		}
 	}
 
 	render() {
-		const { mappingEnabled, isMappingTarget, mapped, onChange, alias, ...rest } = this.props;
+		const { mappingEnabled, currentMappingAlias, mapped, onChange, alias, ...rest } = this.props;
+		const isMappingTarget = alias === currentMappingAlias;
 		return (
 			<label htmlFor={alias}>
 				{alias && titleCase(alias)}

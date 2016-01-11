@@ -46,12 +46,6 @@ import { deviceSelected, deviceDeselected, setSelectedDevices } from 'reducers/s
 })
 export default class App extends Component {
 
-	constructor(props) {
-		super(props);
-		// questionable i know
-		// this.render = _.throttle(this.render, fps60);
-	}
-
 	componentWillMount() {
 		window.addEventListener('keyup', this.handleKeyUp);
 	}
@@ -62,7 +56,6 @@ export default class App extends Component {
 
 	@autobind
 	handleKeyUp(event) {
-		// console.log(keycode(event));
 		switch(keycode(event)) {
 			case 'm':
 				this.toggleMapping()

@@ -63,41 +63,6 @@ export const resetValues = () => ({ type: RESET_VALUES });
 
 export const setCC = (device, message) => ({ type: CC_CHANGE, device, message });
 
-const lastTimes = {};
-const currentTime = () => new Date().getTime();
-export const midiMessageReceived = _.throttle((device, _message, store, state) => {
-
-	const message = getMidiMessageObject(_message);
-	// to prevent excess updates to redux store we filter out messages received from same key (cc or note)
-	// throttling the function won't work because we don't want to ignore midi messages from different sources
-	// therefore this will have to be optimized as it still chokes when two cc values are moved simultaneously
-	const lastTime = lastTimes[device.id+'_'+message.channel+'_'+message.key];
-	if(lastTime && currentTime() - lastTime < fps60) return { type: UNKNOWN_COMMAND };
-	lastTimes[device.id+'_'+message.channel+'_'+message.key] = currentTime();
-
-	state.midiMappings.map(mapping => {
-		if(mapping.deviceId === device.id && mapping.channel === message.channel && mapping.key === message.key) {
-			// A mapping exists for this midi message so update its value
-			store.dispatch(updateParamValue(mapping.alias, message.velocity/127));
-		}
-	});
-
-	switch (message.command) {
-		case 9: 
-			return { device, message, type: message.velocity === 0 ? NOTE_OFF : NOTE_ON }
-		case 8: 
-			return { device, message, type: NOTE_OFF }
-		case 11: 
-			return { device, message, type: CC_CHANGE }
-		case 13: 
-			return { device, message, type: AFTERTOUCH_CHANGE }
-		case 14: 
-			return { device, message, type: PITCHBEND_CHANGE }
-		default: 
-			return { type: UNKNOWN_COMMAND }
-	}
-}, fps60);
-
 let inactiveIdsTimeout = null;
 let pendingInactiveDeviceIds = [];
 export function midiMessagesReceived(messages, store, state) {

@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import deepEquals from 'deep-equal'
 
 export default class TestBox extends Component {
 
